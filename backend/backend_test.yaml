@@ -1,26 +1,27 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: watermark-frontend
+  name: watermark-backend
 spec:
-  replicas: 1
+  replicas: 5
   selector:
     matchLabels:
-      app: watermark-frontend
-      tier: frontend
+      app: watermark-backend
+      tier: watermark-backend
       track: stable
   template:
     metadata:
       labels:
-        app: watermark-frontend
-        tier: frontend
+        app: watermark-backend
+        tier: watermark-backend
         track: stable
+
     spec:
       containers:
-        - name: watermark-frontend
-          image: gcr.io/watermarking-424614/watermark-frontend
+        - name: watermark-backend
+          image: gcr.io/watermarking-424614/watermark-backend
           ports:
-            - containerPort: 80
+           - containerPort: 8080
           env:
           - name: CURRENT_ENV
             value: "TEST"
@@ -30,13 +31,12 @@ spec:
 apiVersion: v1
 kind: Service
 metadata:
-   name: watermark-frontend
+  name: watermark-backend
 spec:
-  type: LoadBalancer
+  selector:
+    app: watermark-backend
+    tier: watermark-backend
   ports:
     - protocol: TCP
       port: 80
-      targetPort: 80
-  selector:
-    app: watermark-frontend
-    tier: frontend
+      targetPort: 8080

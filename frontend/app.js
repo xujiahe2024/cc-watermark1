@@ -1,3 +1,12 @@
+env_name = process.env.CURRENT_ENV;
+console.log(process.env.CURRENT_ENV); // 输出 "TEST"
+
+urlprefix = "http://watermark-backend.default.svc.cluster.local";
+switch (env_name) {
+    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
+}
+
+
 document.getElementById('Uploadform').addEventListener('submit',async function (e) {
     e.preventDefault();
 
@@ -21,7 +30,7 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
     Formdata.append('Watermarkimage',  Watermarkimage);
 
     try {
-        const response = await fetch('http://watermark-backend.default.svc.cluster.local/upload', {
+        const response = await fetch(urlprefix + '/upload', {
             method: 'POST',
             body: Formdata
         });
@@ -49,7 +58,7 @@ document.getElementById('Checkstatus').addEventListener('click', async function 
     }
 
     try {
-        const response = await fetch('http://watermark-backend.default.svc.cluster.local/status?Jobid=' + Jobid);
+        const response = await fetch(urlprefix + '/status?Jobid=' + Jobid);
         if (response.ok) {
             const result = await response.json();
             const progress = result.progress;
@@ -76,7 +85,7 @@ document.getElementById('Downloadbutton').addEventListener('click', function () 
         return;
     }
 
-    const url = `http://watermark-backend.default.svc.cluster.local/download?Jobid=${Jobid}`;
+    const url = urlprefix + `/download?Jobid=${Jobid}`;
     fetch(url)
         .then(response => {
             if (!response.ok) {
