@@ -2,7 +2,7 @@
 //console.log(process.env.CURRENT_ENV); // 输出 "TEST"
 
 //urlprefix = "http://watermark-backend.default.svc.cluster.local";
-urlprefix = "http://127.0.0.1:8071";
+urlprefix = "http://34.91.227.196:8071";
 //switch (env_name) {
 //    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
 //}
