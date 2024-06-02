@@ -1,0 +1,37 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watermark-frontend
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: watermark-frontend
+      tier: frontend
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: watermark-frontend
+        tier: frontend
+        track: stable
+    spec:
+      containers:
+        - name: watermark-frontend
+          image: gcr.io/watermarking-424614/watermark-frontend
+          ports:
+            - containerPort: 80
+---
+apiVersion: v1
+kind: Service
+metadata:
+   name: watermark-frontend
+spec:
+  type: LoadBalancer
+  ports:
+    - protocol: TCP
+      port: 80
+      targetPort: 80
+  selector:
+    app: watermark-frontend
+    tier: frontend

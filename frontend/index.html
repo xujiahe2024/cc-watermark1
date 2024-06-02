@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="Watermark your video" content="width=device-width, initial-scale=1.0">
+    <title>Watermark your video</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="container">
+        <h1>Watermark your video</video></h1>
+        <form id="Uploadform">
+            <label for="Videofile">Upload your video here:</label>
+            <input type="file" id="Videofile" accept="video/mp4">
+            <label for="Videourl">You can also provide a video url:</label>
+            <input type="url" id="Videourl" placeholder="Please enter your video url">
+            <label for="Watermarkimage">Upload your watermark image here:</label>
+            <input type="file" id="Watermarkimage" accept="image/*">
+            <button type="submit">Submit</button>
+        </form>
+
+        <h2>Job ID: <span id="displayJobid"></span></h2>
+
+        <div id="Status">
+            <h2>Check your job status</h2>
+            <input type="text" id="Jobid" placeholder="Please enter your job id">
+            <button id="Checkstatus">Check you job status</button>
+            <div id="progress"></div>
+        </div>
+
+        <div id="download">
+            <h2>Download your proccessed video!</h2>
+            <button id="Downloadbutton">Download</button>
+        </div>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>
+
+
+
+
+         
+
+
