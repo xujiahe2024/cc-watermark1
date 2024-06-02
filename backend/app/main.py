@@ -69,6 +69,10 @@ def status():
 
     return jsonify(job.to_dict())
 
+@app.route('/hello', methods=['GET'])
+def hello():
+    return jsonify({'message': 'Hello World!'}), 200
+
 
 @app.route('/download', methods=['GET'])
 def download():
