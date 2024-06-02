@@ -1,10 +1,11 @@
-env_name = process.env.CURRENT_ENV;
-console.log(process.env.CURRENT_ENV); // 输出 "TEST"
+//env_name = process.env.CURRENT_ENV;
+//console.log(process.env.CURRENT_ENV); // 输出 "TEST"
 
-urlprefix = "http://watermark-backend.default.svc.cluster.local";
-switch (env_name) {
-    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
-}
+//urlprefix = "http://watermark-backend.default.svc.cluster.local";
+urlprefix = "http://127.0.0.1:80";
+//switch (env_name) {
+//    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
+//}
 
 
 document.getElementById('Uploadform').addEventListener('submit',async function (e) {
