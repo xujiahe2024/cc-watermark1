@@ -33,6 +33,7 @@ kind: Service
 metadata:
   name: watermark-backend
 spec:
+  type: LoadBalancer
   selector:
     app: watermark-backend
     tier: watermark-backend
