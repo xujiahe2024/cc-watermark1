@@ -5,7 +5,7 @@ import os
 import uuid
 from flask_cors import CORS
 
-output_dir = './output'
+output_dir = os.path.abspath('./output')
 
 storage = storage.Client()
 database = firestore.Client()

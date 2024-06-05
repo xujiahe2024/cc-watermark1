@@ -1,7 +1,7 @@
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 import os
 
-output_dir = './output'
+output_dir = os.path.abspath('./output')
 
 def cal_video_length(video_path):
     video = VideoFileClip(video_path)
