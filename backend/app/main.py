@@ -100,10 +100,10 @@ def download():
         return jsonify({'error': 'Job is not completed.'}), 400
     
     bucket = storage.bucket(bucketname)
-    blob = bucket.blob(f'results/{job_id}.mp4')
-    blob.download_to_filename(f'{output_dir}/finished_{job_id}.mp4')
+    blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+    blob.download_to_filename(f'{output_dir}/final_{job_id}.mp4')
 
-    return send_file(f'{output_dir}/finished_{job_id}.mp4')
+    return send_file(f'{output_dir}/final_{job_id}.mp4')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
