@@ -30,8 +30,8 @@ def upload():
             'resulturl': None
         })
 
-        video_path = f'tmp/{job_id}_video.mp4'
-        watermark_path = f'tmp/{job_id}_watermark.png'
+        video_path = f'/tmp/{job_id}_video.mp4'
+        watermark_path = f'/tmp/{job_id}_watermark.png'
 
         if videofile:
             videofile.save(video_path)
@@ -91,9 +91,9 @@ def download():
     
     bucket = storage.bucket(bucketname)
     blob = bucket.blob(f'results/{job_id}.mp4')
-    blob.download_to_filename(f'tmp/finished_{job_id}.mp4')
+    blob.download_to_filename(f'/tmp/finished_{job_id}.mp4')
 
-    return send_file(f'../tmp/finished_{job_id}.mp4')
+    return send_file(f'/tmp/finished_{job_id}.mp4')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
