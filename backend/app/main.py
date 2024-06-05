@@ -8,7 +8,7 @@ from flask_cors import CORS
 storage = storage.Client()
 database = firestore.Client()
 app = Flask(__name__)
-CORS(app)
+CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
 
 @app.route('/upload', methods=['POST'])
