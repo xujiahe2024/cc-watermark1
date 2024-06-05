@@ -5,6 +5,8 @@ import os
 import uuid
 from flask_cors import CORS
 
+output_dir = './output'
+
 storage = storage.Client()
 database = firestore.Client()
 app = Flask(__name__)
@@ -30,8 +32,6 @@ def upload():
             'resulturl': None
         })
         
-        # 创建 output 目录
-        output_dir = './output'
         os.makedirs(output_dir, exist_ok=True)
 
         # 生成文件路径
@@ -101,9 +101,9 @@ def download():
     
     bucket = storage.bucket(bucketname)
     blob = bucket.blob(f'results/{job_id}.mp4')
-    blob.download_to_filename(f'/tmp/finished_{job_id}.mp4')
+    blob.download_to_filename(f'{output_dir}/finished_{job_id}.mp4')
 
-    return send_file(f'/tmp/finished_{job_id}.mp4')
+    return send_file(f'{output_dir}/finished_{job_id}.mp4')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
