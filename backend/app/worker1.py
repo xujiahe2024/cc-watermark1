@@ -58,7 +58,7 @@ def processor(job_id, video_path, watermark_path, storage, database):
     for i, (start, end) in enumerate(chunks):
         process_chunk(job_id, video_path, watermark_path, start, end, i + 1, total_chunks, storage, database)
 
-    chunks_path = [f'{output_dir}/{job_id}_chunk{i}.mp4' for i in range(total_chunks)]
+    chunks_path = [f'{output_dir}/{job_id}_chunk{i+1}.mp4' for i in range(total_chunks)]
 
     merge_chunks(job_id, chunks_path, storage, database)
 
