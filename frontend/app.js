@@ -2,7 +2,7 @@
 //console.log(process.env.CURRENT_ENV); // 输出 "TEST"
 
 //urlprefix = "http://watermark-backend.default.svc.cluster.local";
-urlprefix = "http://34.91.227.196:8071";
+urlprefix = "http://35.204.29.159:8071";
 //switch (env_name) {
 //    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
 //}
@@ -36,7 +36,7 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
             body: Formdata
         });
 
-        if (response.ok) {
+        if (response.ok) { 
             const result = await response.json();
             alert('Upload successful! Your job id is:' + result.Jobid);
             document.getElementById('displayJobid').innerText = result.Jobid;

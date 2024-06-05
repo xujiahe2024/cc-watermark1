@@ -1,5 +1,5 @@
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip
-from moviepy.video.fx.all import resize
+import os
 
 def processor(job_id, video_path, watermark_path, storage, database):
     job_ref = database.collection('job').document(job_id)
