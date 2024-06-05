@@ -29,9 +29,19 @@ def upload():
             'progress': 0,
             'resulturl': None
         })
+        
+        # 创建 output 目录
+        output_dir = './output'
+        os.makedirs(output_dir, exist_ok=True)
 
-        video_path = f'/tmp/{job_id}_video.mp4'
-        watermark_path = f'/tmp/{job_id}_watermark.png'
+        # 生成文件路径
+        video_path = os.path.join(output_dir, f'{job_id}_video.mp4')
+        watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
+
+        #video_path = f'/tmp/{job_id}_video.mp4'
+        #watermark_path = f'/tmp/{job_id}_watermark.png'
+        
+        
 
         if videofile:
             videofile.save(video_path)
