@@ -5,6 +5,7 @@ import os
 import uuid
 from flask_cors import CORS
 import json
+import message_queue1
 
 output_dir = os.path.abspath('./output')
 

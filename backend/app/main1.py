@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify, send_file
 from google.cloud import storage, firestore, pubsub_v1
 from worker1 import processor, split_video, merge_chunks, process_chunk
-from message_queue import initialize_publisher, initialize_subscriber
+import message_queue1
 import os
 import uuid
 from flask_cors import CORS
@@ -68,8 +68,7 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=10)
-        initialize_publisher()
-        initialize_subscriber()
+        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, topic_name)
         
 
 

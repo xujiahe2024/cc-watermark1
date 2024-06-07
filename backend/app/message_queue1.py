@@ -1,16 +1,20 @@
 from google.cloud import pubsub_v1
 from worker1 import process_chunk
 import json
-
+import threading
 
 project_id = "watermarking-424614"
 topic_id = "image-watermark-sub"
+
+pub_client = pubsub_v1.PublisherClient()
+topic_path = pub_client.topic_path(project_id, topic_id)
+
+"""
 
 def initialize_publisher():
     publisher = pubsub_v1.PublisherClient()
     topic_path = publisher.topic_path(project_id, topic_id)
 
-    """
     def publish_messages():
         for i in range(10):
             data = f"Message number {i}"
@@ -38,7 +42,7 @@ def initialize_publisher():
     #         future = publisher.publish(topic_path, data)
     #         print(f"Published {data} to {topic_path}: {future.result()}")
 
-    def publish_messages(job_id, video_path, watermark_path, chunks, topic_name):
+def publish_messages(job_id, video_path, watermark_path, chunks, topic_name):
         for i, (start, end) in enumerate(chunks):
             data = json.dumps({
                 'job_id': job_id,
@@ -49,7 +53,7 @@ def initialize_publisher():
                 'chunk_num': i + 1,
                 'total_chunks': len(chunks)
             }).encode('utf-8')
-            publisher.publish(topic_name, data)
+            pub_client.publish(topic_name, data)
 
     #publish_messages()
 
@@ -83,10 +87,5 @@ def initialize_subscriber():
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
     print(f"Listening for messages on {subscription_path}...\n")
 
-    # 让订阅者运行一段时间，然后停止
-    try:
-        streaming_pull_future.result(timeout=30)
-    except TimeoutError:
-        streaming_pull_future.cancel()  # Trigger the shutdown.
-        streaming_pull_future.result()  # Block until the shutdown is complete.
 
+thread = threading.Thread(target=initialize_subscriber)
