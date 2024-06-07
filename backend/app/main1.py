@@ -95,7 +95,7 @@ def upload():
         
         for i, (start, end) in enumerate(chunks):
             video = VideoFileClip(video_path).subclip(start, end)
-            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.mp4', codec='libx264')
+            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.mp4')
             blob = bucket.blob(f'videos/{job_id}_{i}.mp4')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.mp4')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
