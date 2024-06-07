@@ -1,5 +1,4 @@
 from google.cloud import pubsub_v1
-from worker2 import process_chunk
 import json
 import threading
 from flask import current_app
@@ -74,7 +73,7 @@ def publish_messages(job_id, video_path, watermark_path, chunks, video_url):
 
 
 
-
+"""
 subscription_id = 'image--watermark-sub1'
 
 subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
@@ -120,3 +119,4 @@ def initialize_subscriber():
 def print_sub_future():
     print(streaming_pull_future)
     
+    """
