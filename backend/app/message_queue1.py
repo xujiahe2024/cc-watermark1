@@ -100,11 +100,16 @@ def initialize_subscriber():
 
     
         def callback(message): #处理来自pub的消息
-            data = json.loads(message.data.decode('utf-8'))
-            current_app.logger.info(f"Received message: {data}")
+            try:
+                with current_app.app_context():
+                    data = json.loads(message.data.decode('utf-8'))
+                    current_app.logger.info(f"Received message: {data}")
 
-            process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'])
-            message.ack()
+                    process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'])
+                    message.ack()
+            except Exception as e:
+                print(f"An error occurred while processing message: {e}")
+                message.nack()
 
         streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
         #current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
