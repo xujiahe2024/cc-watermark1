@@ -7,7 +7,7 @@ from flask import current_app
 
 
 project_id = "watermarking-424614"
-topic_id = "image-watermark-sub"
+topic_id = "image-watermark"
 
 pub_client = pubsub_v1.PublisherClient()
 topic_path = pub_client.topic_path(project_id, topic_id)
