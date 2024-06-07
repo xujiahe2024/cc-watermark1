@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 import time
-import message_queue1
+import consumer.app.message_queue as message_queue
 
 # Configure the logging module to print to stdout
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
@@ -19,6 +19,6 @@ bucketname = 'ccmarkbucket'
 
 
 if __name__ == '__main__':
-    threading.Thread(target=message_queue1.initialize_subscriber).start()
+    threading.Thread(target=message_queue.initialize_subscriber).start()
     while True:
         time.sleep(1)

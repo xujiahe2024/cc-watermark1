@@ -1,5 +1,5 @@
 from google.cloud import pubsub_v1
-from worker2 import process_chunk
+from consumer.app.worker import process_chunk
 import json
 import threading
 import logging
@@ -101,7 +101,7 @@ def initialize_subscriber():
         def callback(message): #处理来自pub的消息
             try:
                 data = json.loads(message.data.decode('utf-8'))
-                logging.info(f"Received message: {data}")
+                logging.info(f"Received message : {data}")
 
                 process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
                 message.ack()
