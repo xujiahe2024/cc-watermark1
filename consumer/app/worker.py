@@ -58,7 +58,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
 
         processed = CompositeVideoClip([video, watermark])
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
-        processed.write_videofile(chunk_path, codec='libx264')
+        processed.write_videofile(chunk_path)
         
         logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
