@@ -22,28 +22,30 @@ def split_video(video_path, chunk_length=10):
     
 
 def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk, total_chunks, storage, database):
-    database = firestore.Client()
-    job_ref = database.collection('job').document(job_id)
+    with current_app.app_context():
+        current_app.logger.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
+        database = firestore.Client()
+        job_ref = database.collection('job').document(job_id)
 
-    video = VideoFileClip(video_path).subclip(start, end)
-    watermark = ImageClip(watermark_path).set_duration(video.duration)
-    watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
+        video = VideoFileClip(video_path).subclip(start, end)
+        watermark = ImageClip(watermark_path).set_duration(video.duration)
+        watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
-    processed = CompositeVideoClip([video, watermark])
-    chunk_path = f'{output_dir}/{job_id}_chunk{current_chunk}.mp4'
-    processed.write_videofile(chunk_path, codec='libx264')
+        processed = CompositeVideoClip([video, watermark])
+        chunk_path = f'{output_dir}/{job_id}_chunk{current_chunk}.mp4'
+        processed.write_videofile(chunk_path, codec='libx264')
 
-    bucket = storage.bucket('ccmarkbucket')
-    blob = bucket.blob(f'{output_dir}/{job_id}_chunk{current_chunk}.mp4')
-    blob.upload_from_filename(chunk_path)
+        bucket = storage.bucket('ccmarkbucket')
+        blob = bucket.blob(f'{output_dir}/{job_id}_chunk{current_chunk}.mp4')
+        blob.upload_from_filename(chunk_path)
 
-    current_app.logger.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
-    job_ref.update({'completed_chunks': firestore.Increment(1)})
+        current_app.logger.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
+        job_ref.update({'completed_chunks': firestore.Increment(1)})
 
-    job_data = job_ref.get().to_dict()
-    if job_data['completed_chunks'] == job_data['total_chunks']:
-        current_app.logger.info(f"All chunks processed for job {job_id}")
-        merge_chunks(job_id)
+        job_data = job_ref.get().to_dict()
+        if job_data['completed_chunks'] == job_data['total_chunks']:
+            current_app.logger.info(f"All chunks processed for job {job_id}")
+            merge_chunks(job_id)
 
 
 

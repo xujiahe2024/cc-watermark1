@@ -89,6 +89,7 @@ def upload():
         chunks = split_video(video_path, chunk_length=10)
         message_queue1.publish_messages(job_id, video_path, watermark_path, chunks)
         
+        message_queue1.print_sub_future()
 
 
         return jsonify({'Jobid': job_id, 'message': 'Your video is processing'})

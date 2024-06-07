@@ -82,8 +82,10 @@ subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
     sub=subscription_id,  # Set this to something appropriate.
 )
 
+streaming_pull_future = ""
 
 def initialize_subscriber():
+    global  streaming_pull_future
         #current_app.logger.info(f"Subscription name: {subscription_name}")
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(project_id, subscription_id)
@@ -115,3 +117,6 @@ def initialize_subscriber():
         #current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
 
 
+def print_sub_future():
+    print(streaming_pull_future)
+    
