@@ -3,7 +3,7 @@ import os
 import sys
 import logging
 import time
-import consumer.app.message_queue as message_queue
+import message_queue
 
 # Configure the logging module to print to stdout
 logging.basicConfig(level=logging.INFO, stream=sys.stdout)
