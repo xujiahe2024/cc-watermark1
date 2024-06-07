@@ -16,10 +16,20 @@ output_dir = os.path.abspath('./output')
 
 storage = storage.Client()
 database = firestore.Client()
-app = Flask(__name__)
+
+
+class MyFlaskApp(Flask):
+    def __init__(self, *args, **kwargs):
+        super(MyFlaskApp, self).__init__(*args, **kwargs)
+        self.initialize_subscriber()
+
+    def initialize_subscriber(self):
+        threading.Thread(target=message_queue1.initialize_subscriber).start()
+
+app = MyFlaskApp(__name__)
 app.logger.setLevel(logging.INFO)
 app.app_context().push()
-threading.Thread(target=message_queue1.initialize_subscriber).start()
+
 
 CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
