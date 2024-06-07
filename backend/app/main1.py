@@ -80,6 +80,9 @@ def upload():
         bucket = storage.bucket(bucketname)
         blob = bucket.blob(f'videos/{job_id}.mp4')
         blob.upload_from_filename(video_path)
+        
+        video_url = blob.public_url
+        
         blob = bucket.blob(f'watermarks/{job_id}.png')
         blob.upload_from_filename(watermark_path)
 
@@ -87,7 +90,7 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=10)
-        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks)
+        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, video_url)
         
         message_queue1.print_sub_future()
 

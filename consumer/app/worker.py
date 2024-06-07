@@ -23,12 +23,17 @@ def split_video(video_path, chunk_length=10):
     return chunks
     
 
-def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk, total_chunks):
+def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, total_chunks):
         global Storage
         global database
         logging.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
+        
+        video_path = f'{output_dir}/{job_id}_video.mp4'
+        if not os.path.exists(video_path):
+            blob = Storage.bucket('ccmarkbucket').blob(video_url)
+            blob.download_to_filename(video_path)
 
         video = VideoFileClip(video_path).subclip(start, end)
         watermark = ImageClip(watermark_path).set_duration(video.duration)
