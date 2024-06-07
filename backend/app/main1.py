@@ -1,5 +1,6 @@
 try:
     from flask import Flask, request, jsonify, send_file
+    import logging
     from google.cloud import storage, firestore, pubsub_v1
     from worker2 import split_video, merge_chunks, process_chunk
     import message_queue1
@@ -15,6 +16,7 @@ output_dir = os.path.abspath('./output')
 storage = storage.Client()
 database = firestore.Client()
 app = Flask(__name__)
+app.logger.setLevel(logging.INFO)
 CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
 publisher = pubsub_v1.PublisherClient()
