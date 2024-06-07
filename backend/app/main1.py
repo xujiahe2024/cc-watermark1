@@ -46,16 +46,9 @@ def upload():
         if not (videofile or videourl) or not markimage:
             return jsonify({'You have to upload video and markimage'}), 400
         
-        # job_id = str(uuid.uuid4())
-        job_id = str("4b87c71e-764f-4f25-a8f3-ae86fbdf9249")
-        job_ref = database.collection('job').document(job_id)
-        job_ref.set({
-            'status': 'pending',
-            'progress': 0,
-            'completed_chunks': 0,
-            'total_chunks': 0, 
-            'resulturl': None
-        })
+        job_id = str(uuid.uuid4())
+        #job_id = str("4b87c71e-764f-4f25-a8f3-ae86fbdf9249")
+        
         
         os.makedirs(output_dir, exist_ok=True)
 
@@ -88,6 +81,15 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=10)
+        
+        job_ref = database.collection('job').document(job_id)
+        job_ref.set({
+            'status': 'pending',
+            'progress': 0,
+            'completed_chunks': 0,
+            'total_chunks': len(chunks), 
+            'resulturl': None
+        })
         
         
         for i, (start, end) in enumerate(chunks):

@@ -85,7 +85,7 @@ def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
-    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in job_data['total_chunks']]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     final_clip.write_videofile(f'{output_dir}/final_{job_id}.webm', codec='libx264')
