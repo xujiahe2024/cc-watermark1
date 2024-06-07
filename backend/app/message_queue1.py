@@ -62,11 +62,11 @@ def publish_messages(job_id, video_path, watermark_path, chunks, video_url):
                 'watermark_path': watermark_path,
                 'start': start,
                 'end': end,
-                'chunk_num': i + 1,
+                'chunk_num': i,
                 'total_chunks': len(chunks)
             }).encode('utf-8')
             future = pub_client.publish(topic_name, data)
-            current_app.logger.info(f"Published message {i + 1} to {topic_name}")
+            current_app.logger.info(f"Published message {i} to {topic_name}")
             current_app.logger.info(f"Published message future: {future.result()}")
 
     #publish_messages()

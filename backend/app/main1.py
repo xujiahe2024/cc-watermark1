@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 import threading
 import os
 import logging
@@ -78,8 +79,8 @@ def upload():
         markimage.save(watermark_path)
 
         bucket = storage.bucket(bucketname)
-        blob = bucket.blob(f'videos/{job_id}.mp4')
-        blob.upload_from_filename(video_path)
+        #blob = bucket.blob(f'videos/{job_id}.mp4')
+        #blob.upload_from_filename(video_path)
         
         video_url = f'videos/{job_id}.mp4'
         
@@ -90,6 +91,15 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=10)
+        
+        
+        for i, (start, end) in enumerate(chunks):
+            video = VideoFileClip(video_path).subclip(start, end)
+            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.mp4', codec='libx264')
+            blob = bucket.blob(f'videos/{job_id}_{i}.mp4')
+            blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.mp4')
+            #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
+        
         message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, video_url)
         
         message_queue1.print_sub_future()

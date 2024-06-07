@@ -30,29 +30,33 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
-        video_path = f'{output_dir}/{job_id}_video.mp4'
+        video_path = f'{output_dir}/{job_id}_video_{current_chunk}.mp4'
         
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
+        right_video_url = f'videos/{job_id}_{current_chunk}.mp4'
+        
         if not os.path.exists(video_path):
-            blob = Storage.bucket('ccmarkbucket').blob(video_url)
+            blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
             blob.download_to_filename(video_path)
             
         logging.info(f"Downloaded video for job {job_id}")
+        
+        video = VideoFileClip(video_path)
 
-        video = VideoFileClip(video_path).subclip(start, end)
-        watermark = ImageClip(watermark_path).set_duration(video.duration)
+        #video = VideoFileClip(video_path).subclip(start, end)
+        watermark = ImageClip(watermark_path)
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
-        chunk_path = f'{output_dir}/{job_id}_chunk{current_chunk}.mp4'
+        chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.mp4'
         processed.write_videofile(chunk_path, codec='libx264')
         
         logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
-        blob = bucket.blob(f'{output_dir}/{job_id}_chunk{current_chunk}.mp4')
+        blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.mp4')
         blob.upload_from_filename(chunk_path)
 
         logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
@@ -69,9 +73,10 @@ def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
-    chunks_path = [f'{output_dir}/{job_id}_chunk_{start}_{end}.mp4' for start, end in split_video(job_data['video_url'], 10)]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.mp4' for current_chunk in job_data['total_chunks']]
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', codec='libx264')
     final_result_path = f'{output_dir}/final_{job_id}.mp4'
 
     bucket = Storage.bucket('ccmarkbucket')

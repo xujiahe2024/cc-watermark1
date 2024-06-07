@@ -32,11 +32,11 @@ def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk,
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
-        chunk_path = f'{output_dir}/{job_id}_chunk{current_chunk}.mp4'
+        chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.mp4'
         processed.write_videofile(chunk_path, codec='libx264')
 
         bucket = storage.bucket('ccmarkbucket')
-        blob = bucket.blob(f'{output_dir}/{job_id}_chunk{current_chunk}.mp4')
+        blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.mp4')
         blob.upload_from_filename(chunk_path)
 
         current_app.logger.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
