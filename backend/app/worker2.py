@@ -1,6 +1,7 @@
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 import os
 from google.cloud import firestore
+from google.cloud import storage
 output_dir = os.path.abspath('./output')
 
 def cal_video_length(video_path):
@@ -40,6 +41,7 @@ def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk,
         merge_chunks(job_id)
 
 
+
 def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
@@ -48,6 +50,12 @@ def merge_chunks(job_id):
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     final_result_path = f'{output_dir}/final_{job_id}.mp4'
+
+    bucket = storage.bucket('ccmarkbucket')
+    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+    final_blob.upload_from_filename(final_result_path)
+
+
 
 
 # def merge_chunks(job_id, chunks_path, storage, database):

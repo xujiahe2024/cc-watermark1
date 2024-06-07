@@ -1,5 +1,5 @@
 from google.cloud import pubsub_v1
-from worker1 import process_chunk
+from worker2 import process_chunk
 import json
 import threading
 

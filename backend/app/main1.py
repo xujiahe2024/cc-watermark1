@@ -1,11 +1,14 @@
-from flask import Flask, request, jsonify, send_file
-from google.cloud import storage, firestore, pubsub_v1
-from worker1 import processor, split_video, merge_chunks, process_chunk
-import message_queue1
-import os
-import uuid
-from flask_cors import CORS
-import json
+try:
+    from flask import Flask, request, jsonify, send_file
+    from google.cloud import storage, firestore, pubsub_v1
+    from worker2 import split_video, merge_chunks, process_chunk
+    import message_queue1
+    import os
+    import uuid
+    from flask_cors import CORS
+    import json
+except Exception as e:
+    print(f"An error occurred while importing modules: {e}")
 
 output_dir = os.path.abspath('./output')
 
