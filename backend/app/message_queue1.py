@@ -5,6 +5,7 @@ import threading
 from flask import current_app
 
 
+
 project_id = "watermarking-424614"
 topic_id = "image-watermark-sub"
 
@@ -109,4 +110,3 @@ def initialize_subscriber():
         current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
 
 
-thread = threading.Thread(target=initialize_subscriber)

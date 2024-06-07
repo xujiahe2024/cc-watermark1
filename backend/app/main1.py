@@ -1,5 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
+import threading
 import os
 import logging
 from google.cloud import storage, firestore, pubsub_v1
@@ -24,6 +25,10 @@ publisher = pubsub_v1.PublisherClient()
 #topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
 
+@app.before_first_request
+def run_code_after_server_starts():
+    thread = threading.Thread(target=message_queue1.initialize_subscriber)
+    thread.start()
 
 @app.route('/upload', methods=['POST'])
 def upload():
