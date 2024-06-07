@@ -1,5 +1,5 @@
 from google.cloud import pubsub_v1
-
+from worker1 import process_chunk
 import json
 
 
@@ -68,3 +68,4 @@ def initialize_subscriber():
     except TimeoutError:
         streaming_pull_future.cancel()  # Trigger the shutdown.
         streaming_pull_future.result()  # Block until the shutdown is complete.
+

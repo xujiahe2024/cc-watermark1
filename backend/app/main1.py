@@ -1,6 +1,7 @@
 from flask import Flask, request, jsonify, send_file
-from google.cloud import storage, firestore
-from worker1 import processor
+from google.cloud import storage, firestore, pubsub_v1
+from worker1 import processor, split_video, merge_chunks, process_chunk
+from message_queue import initialize_publisher, initialize_subscriber
 import os
 import uuid
 from flask_cors import CORS
@@ -13,7 +14,8 @@ database = firestore.Client()
 app = Flask(__name__)
 CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
-
+publisher = pubsub_v1.PublisherClient()
+topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
 
 
@@ -33,6 +35,8 @@ def upload():
         job_ref.set({
             'status': 'pending',
             'progress': 0,
+            'completed_chunks': 0,
+            'total_chunks': 0, 
             'resulturl': None
         })
         
@@ -61,13 +65,15 @@ def upload():
         blob.upload_from_filename(watermark_path)
 
         #processor(job_id, video_path, watermark_path, storage, database)
-        #为切片后的每个片段发送一个pub/sub消息，为了后续并行处理
+      
 
-        processor(job_id, video_path, watermark_path, storage, database)
+        chunks = split_video(video_path, chunk_length=10)
+        initialize_publisher()
+        initialize_subscriber()
+        
 
-        return jsonify({'Jobid': job_id})
 
-        return jsonify({'Jobid': job_id, 'message': 'Your video is waiting for processing'})
+        return jsonify({'Jobid': job_id, 'message': 'Your video is processing'})
     
     except Exception as e:
         app.logger.error('Failed to process upload', exc_info=True)
