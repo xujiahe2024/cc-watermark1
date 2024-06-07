@@ -1,0 +1,43 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: watermark-consumer
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: watermark-consumer
+      tier: watermark-consumer
+      track: stable
+  template:
+    metadata:
+      labels:
+        app: watermark-consumer
+        tier: watermark-consumer
+        track: stable
+
+    spec:
+      containers:
+        - name: watermark-consumer
+          image: gcr.io/watermarking-424614/watermark-consumer
+          ports:
+           - containerPort: 8080
+          env:
+          - name: CURRENT_ENV
+            value: "env_var_value"
+          - name: DATABASE_URL
+            value: "postgres://user:password@hostname:5432/dbname"
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: watermark-consumer
+spec:
+  type: LoadBalancer
+  selector:
+    app: watermark-consumer
+    tier: watermark-consumer
+  ports:
+    - protocol: TCP
+      port: 8072
+      targetPort: 8080
