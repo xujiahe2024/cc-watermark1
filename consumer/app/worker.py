@@ -51,8 +51,9 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         
         video = VideoFileClip(video_path)
 
+        video.duration = 10
         #video = VideoFileClip(video_path).subclip(start, end)
-        watermark = ImageClip(watermark_path)
+        watermark = ImageClip(watermark_path).duration(video.duration)
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
