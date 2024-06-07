@@ -40,6 +40,7 @@ def upload():
     try:
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
+        isFaas = request.form.get('IsFaas')
         markimage = request.files.get('Watermarkimage')
 
         if not (videofile or videourl) or not markimage:
@@ -96,9 +97,7 @@ def upload():
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
         
-        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, video_url)
-        
-        message_queue1.print_sub_future()
+        message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 
         return jsonify({'Jobid': job_id, 'message': 'Your video is processing'})

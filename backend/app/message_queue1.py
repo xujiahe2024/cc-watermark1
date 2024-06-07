@@ -17,6 +17,12 @@ topic_name = 'projects/{project_id}/topics/{topic}'.format(
     topic=topic_id,  # Set this to something appropriate.
 )
 
+faas_topic_id = "image-watermark-faas"
+
+topic_name_faas = 'projects/{project_id}/topics/{topic}'.format(
+    project_id=project_id,
+    topic=faas_topic_id,  # Set this to something appropriate.
+)
 
 """
 
@@ -51,7 +57,7 @@ def initialize_publisher():
     #         future = publisher.publish(topic_path, data)
     #         print(f"Published {data} to {topic_path}: {future.result()}")
 
-def publish_messages(job_id, video_path, watermark_path, chunks, video_url):
+def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
     with current_app.app_context():
         current_app.logger.info(f"Topic path: {topic_path}")
         for i, (start, end) in enumerate(chunks):
@@ -64,8 +70,12 @@ def publish_messages(job_id, video_path, watermark_path, chunks, video_url):
                 'chunk_num': i,
                 'total_chunks': len(chunks)
             }).encode('utf-8')
-            future = pub_client.publish(topic_name, data)
-            current_app.logger.info(f"Published message {i} to {topic_name}")
+            if isFaas:
+                future = pub_client.publish(topic_name_faas, data)
+                current_app.logger.info(f"Published message {i} to {topic_name}")
+            else:
+                future = pub_client.publish(topic_name, data)
+                current_app.logger.info(f"Published message {i} to {topic_name}")
             current_app.logger.info(f"Published message future: {future.result()}")
 
     #publish_messages()
