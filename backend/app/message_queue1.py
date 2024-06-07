@@ -2,6 +2,8 @@ from google.cloud import pubsub_v1
 from worker2 import process_chunk
 import json
 import threading
+from flask import current_app
+
 
 project_id = "watermarking-424614"
 topic_id = "image-watermark-sub"
@@ -54,6 +56,7 @@ def publish_messages(job_id, video_path, watermark_path, chunks, topic_name):
                 'total_chunks': len(chunks)
             }).encode('utf-8')
             pub_client.publish(topic_name, data)
+            current_app.logger.info(f"Published message {i + 1} to {topic_name}")
 
     #publish_messages()
 
@@ -79,13 +82,13 @@ def initialize_subscriber():
     
     def callback(message): #处理来自pub的消息
         data = json.loads(message.data.decode('utf-8'))
-        print(f"Received message: {data}")
+        current_app.logger.info(f"Received message: {data}")
 
         process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'])
         message.ack()
 
     streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    print(f"Listening for messages on {subscription_path}...\n")
+    current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
 
 
 thread = threading.Thread(target=initialize_subscriber)

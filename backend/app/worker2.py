@@ -2,6 +2,8 @@ from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concate
 import os
 from google.cloud import firestore
 from google.cloud import storage
+from flask import current_app
+
 output_dir = os.path.abspath('./output')
 
 def cal_video_length(video_path):
@@ -15,7 +17,8 @@ def split_video(video_path, chunk_length=10):
     for start in range(0, video_length, chunk_length):
         end = min(start + chunk_length, video_length)
         chunks.append((start, end))
-        return chunks
+    current_app.logger.info(f"Split video into {len(chunks)} chunks")
+    return chunks
     
 
 def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk, total_chunks, storage, database):
@@ -34,10 +37,12 @@ def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk,
     blob = bucket.blob(f'{output_dir}/{job_id}_chunk{current_chunk}.mp4')
     blob.upload_from_filename(chunk_path)
 
+    current_app.logger.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
     job_ref.update({'completed_chunks': firestore.Increment(1)})
 
     job_data = job_ref.get().to_dict()
     if job_data['completed_chunks'] == job_data['total_chunks']:
+        current_app.logger.info(f"All chunks processed for job {job_id}")
         merge_chunks(job_id)
 
 
@@ -54,6 +59,7 @@ def merge_chunks(job_id):
     bucket = storage.bucket('ccmarkbucket')
     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
+    current_app.logger.info(f"Uploaded final result for job {job_id}")
 
 
 
