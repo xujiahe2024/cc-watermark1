@@ -31,9 +31,15 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         job_ref = database.collection('job').document(job_id)
         
         video_path = f'{output_dir}/{job_id}_video.mp4'
+        
+        if not os.path.exists(output_dir):
+            os.makedirs(output_dir)
+        
         if not os.path.exists(video_path):
             blob = Storage.bucket('ccmarkbucket').blob(video_url)
             blob.download_to_filename(video_path)
+            
+        logging.info(f"Downloaded video for job {job_id}")
 
         video = VideoFileClip(video_path).subclip(start, end)
         watermark = ImageClip(watermark_path).set_duration(video.duration)
