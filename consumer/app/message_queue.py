@@ -106,7 +106,7 @@ def initialize_subscriber():
                 process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
                 message.ack()
             except Exception as e:
-                print(f"An error occurred while processing message: {e}")
+                logging.info(f"An error occurred while processing message: {e}")
                 message.ack()
 
         streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
