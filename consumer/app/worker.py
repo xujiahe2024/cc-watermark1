@@ -30,12 +30,12 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
-        video_path = f'{output_dir}/{job_id}_video_{current_chunk}.wav'
+        video_path = f'{output_dir}/{job_id}_video_{current_chunk}.webm'
         
         if not os.path.exists(output_dir):
             os.makedirs(output_dir)
         
-        right_video_url = f'videos/{job_id}_{current_chunk}.wav'
+        right_video_url = f'videos/{job_id}_{current_chunk}.webm'
         
         if not os.path.exists(video_path):
             blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
@@ -57,13 +57,13 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
-        chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.wav'
+        chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
         processed.write_videofile(chunk_path, codec='libx264')
         
         logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
-        blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.wav')
+        blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
         blob.upload_from_filename(chunk_path)
 
         logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
@@ -80,14 +80,14 @@ def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
-    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.wav' for current_chunk in job_data['total_chunks']]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in job_data['total_chunks']]
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(f'{output_dir}/final_{job_id}.wav', codec='libx264')
-    final_result_path = f'{output_dir}/final_{job_id}.wav'
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.webm', codec='libx264')
+    final_result_path = f'{output_dir}/final_{job_id}.webm'
 
     bucket = Storage.bucket('ccmarkbucket')
-    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.wav')
+    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.webm')
     final_blob.upload_from_filename(final_result_path)
     logging.info(f"Uploaded final result for job {job_id}")
 
@@ -100,11 +100,11 @@ def merge_chunks(job_id):
 #     clips = [VideoFileClip(path) for path in chunks_path]
 #     final_clip = concatenate_videoclips(clips)
 
-#     final_result_path = f'{output_dir}/final_{job_id}.wav'
+#     final_result_path = f'{output_dir}/final_{job_id}.webm'
 #     final_clip.write_videofile(final_result_path, codec='libx264')
 
 #     bucket = storage.bucket('ccmarkbucket')
-#     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.wav')
+#     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.webm')
 #     final_blob.upload_from_filename(final_result_path)
 
 #     job_ref.update({'status': 'completed', 'progress': 100, 'resulturl': final_blob.public_url})
@@ -116,7 +116,7 @@ def merge_chunks(job_id):
 #     for i, (start, end) in enumerate(chunks):
 #         process_chunk(job_id, video_path, watermark_path, start, end, i + 1, total_chunks, storage, database)
 
-#     chunks_path = [f'{output_dir}/{job_id}_chunk{i+1}.wav' for i in range(total_chunks)]
+#     chunks_path = [f'{output_dir}/{job_id}_chunk{i+1}.webm' for i in range(total_chunks)]
 
 #     merge_chunks(job_id, chunks_path, storage, database)
 

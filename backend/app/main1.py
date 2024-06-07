@@ -63,10 +63,10 @@ def upload():
         os.makedirs(output_dir, exist_ok=True)
 
         # 生成文件路径
-        video_path = os.path.join(output_dir, f'{job_id}_video.wav')
+        video_path = os.path.join(output_dir, f'{job_id}_video.webm')
         watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
 
-        #video_path = f'/tmp/{job_id}_video.wav'
+        #video_path = f'/tmp/{job_id}_video.webm'
         #watermark_path = f'/tmp/{job_id}_watermark.png'
         
         
@@ -79,10 +79,10 @@ def upload():
         markimage.save(watermark_path)
 
         bucket = storage.bucket(bucketname)
-        #blob = bucket.blob(f'videos/{job_id}.wav')
+        #blob = bucket.blob(f'videos/{job_id}.webm')
         #blob.upload_from_filename(video_path)
         
-        video_url = f'videos/{job_id}.wav'
+        video_url = f'videos/{job_id}.webm'
         
         blob = bucket.blob(f'watermarks/{job_id}.png')
         blob.upload_from_filename(watermark_path)
@@ -95,9 +95,9 @@ def upload():
         
         for i, (start, end) in enumerate(chunks):
             video = VideoFileClip(video_path).subclip(start, end)
-            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.wav', codec = "pcm_s24le")
-            blob = bucket.blob(f'videos/{job_id}_{i}.wav')
-            blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.wav')
+            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
+            blob = bucket.blob(f'videos/{job_id}_{i}.webm')
+            blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
         
         message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, video_url)
@@ -147,10 +147,10 @@ def download():
         return jsonify({'error': 'Job is not completed.'}), 400
     
     bucket = storage.bucket(bucketname)
-    blob = bucket.blob(f'{output_dir}/{job_id}_final.wav')
-    blob.download_to_filename(f'{output_dir}/final_{job_id}.wav')
+    blob = bucket.blob(f'{output_dir}/{job_id}_final.webm')
+    blob.download_to_filename(f'{output_dir}/final_{job_id}.webm')
 
-    return send_file(f'{output_dir}/final_{job_id}.wav')
+    return send_file(f'{output_dir}/final_{job_id}.webm')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
