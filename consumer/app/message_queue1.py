@@ -107,7 +107,7 @@ def initialize_subscriber():
                 message.ack()
             except Exception as e:
                 print(f"An error occurred while processing message: {e}")
-                message.nack()
+                message.ack()
 
         streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
         logging.info(f"Listening for messages on {subscription_path}\n")
