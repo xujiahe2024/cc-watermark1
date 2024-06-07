@@ -52,6 +52,7 @@ def initialize_publisher():
     #         print(f"Published {data} to {topic_path}: {future.result()}")
 
 def publish_messages(job_id, video_path, watermark_path, chunks):
+    with current_app.app_context():
         current_app.logger.info(f"Topic path: {topic_path}")
         for i, (start, end) in enumerate(chunks):
             data = json.dumps({
@@ -82,9 +83,9 @@ subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
 
 
 def initialize_subscriber():
-
-    subscriber = pubsub_v1.SubscriberClient()
-    subscription_path = subscriber.subscription_path(project_id, subscription_id)
+    with current_app.app_context():
+        subscriber = pubsub_v1.SubscriberClient()
+        subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
     
 
@@ -97,15 +98,15 @@ def initialize_subscriber():
     #     message.ack()
 
     
-    def callback(message): #处理来自pub的消息
-        data = json.loads(message.data.decode('utf-8'))
-        current_app.logger.info(f"Received message: {data}")
+        def callback(message): #处理来自pub的消息
+            data = json.loads(message.data.decode('utf-8'))
+            current_app.logger.info(f"Received message: {data}")
 
-        process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'])
-        message.ack()
+            process_chunk(data['job_id'], data['video_url'], data['watermark_path'], data['start'], data['end'])
+            message.ack()
 
-    streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-    current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
+        streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
+        current_app.logger.info(f"Listening for messages on {subscription_path}...\n")
 
 
 thread = threading.Thread(target=initialize_subscriber)
