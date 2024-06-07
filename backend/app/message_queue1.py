@@ -10,6 +10,13 @@ topic_id = "image-watermark-sub"
 
 pub_client = pubsub_v1.PublisherClient()
 topic_path = pub_client.topic_path(project_id, topic_id)
+current_app.logger.info(f"Topic path: {topic_path}")
+
+topic_name = 'projects/{project_id}/topics/{topic}'.format(
+    project_id=project_id,
+    topic=topic_id,  # Set this to something appropriate.
+)
+
 
 """
 
@@ -56,8 +63,8 @@ def publish_messages(job_id, video_path, watermark_path, chunks):
                 'chunk_num': i + 1,
                 'total_chunks': len(chunks)
             }).encode('utf-8')
-            future = pub_client.publish(topic_path, data)
-            current_app.logger.info(f"Published message {i + 1} to {topic_path}")
+            future = pub_client.publish(topic_name, data)
+            current_app.logger.info(f"Published message {i + 1} to {topic_name}")
             current_app.logger.info(f"Published message future: {future.result()}")
 
     #publish_messages()
@@ -68,10 +75,18 @@ def publish_messages(job_id, video_path, watermark_path, chunks):
 
 subscription_id = 'image--watermark-sub1'
 
+subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
+    project_id=project_id,
+    sub=subscription_id,  # Set this to something appropriate.
+)
+
+
 def initialize_subscriber():
 
     subscriber = pubsub_v1.SubscriberClient()
     subscription_path = subscriber.subscription_path(project_id, subscription_id)
+
+    current_app.logger.info(f"Subscription path: {subscription_path}")
 
     # def callback(message):
     #     # Decode the bytestring to a JSON string
