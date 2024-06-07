@@ -1,7 +1,6 @@
 from flask import Flask, request, jsonify, send_file
 from flask_cors import CORS
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
-import threading
 import os
 import logging
 from google.cloud import storage, firestore, pubsub_v1
@@ -22,10 +21,7 @@ database = firestore.Client()
 class MyFlaskApp(Flask):
     def __init__(self, *args, **kwargs):
         super(MyFlaskApp, self).__init__(*args, **kwargs)
-        self.initialize_subscriber()
 
-    def initialize_subscriber(self):
-        threading.Thread(target=message_queue1.initialize_subscriber).start()
 
 app = MyFlaskApp(__name__)
 app.logger.setLevel(logging.INFO)
