@@ -19,16 +19,14 @@ database = firestore.Client()
 app = Flask(__name__)
 app.logger.setLevel(logging.INFO)
 app.app_context().push()
+threading.Thread(target=message_queue1.initialize_subscriber).start()
+
 CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
 publisher = pubsub_v1.PublisherClient()
 #topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
 
-@app.before_first_request
-def run_code_after_server_starts():
-    thread = threading.Thread(target=message_queue1.initialize_subscriber)
-    thread.start()
 
 @app.route('/upload', methods=['POST'])
 def upload():

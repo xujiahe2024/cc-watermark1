@@ -85,6 +85,7 @@ subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
 
 def initialize_subscriber():
     with current_app.app_context():
+        current_app.logger.info(f"Subscription name: {subscription_name}")
         subscriber = pubsub_v1.SubscriberClient()
         subscription_path = subscriber.subscription_path(project_id, subscription_id)
 
