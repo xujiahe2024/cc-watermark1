@@ -20,7 +20,7 @@ app.logger.setLevel(logging.INFO)
 CORS(app, resources={r"/*": {"origins": "http://34.91.227.196"}})
 bucketname = 'ccmarkbucket'
 publisher = pubsub_v1.PublisherClient()
-topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
+#topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
 
 
@@ -73,7 +73,7 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=10)
-        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks, topic_name)
+        message_queue1.publish_messages(job_id, video_path, watermark_path, chunks)
         
 
 

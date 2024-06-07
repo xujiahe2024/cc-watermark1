@@ -44,7 +44,8 @@ def initialize_publisher():
     #         future = publisher.publish(topic_path, data)
     #         print(f"Published {data} to {topic_path}: {future.result()}")
 
-def publish_messages(job_id, video_path, watermark_path, chunks, topic_name):
+def publish_messages(job_id, video_path, watermark_path, chunks):
+        global topic_id
         for i, (start, end) in enumerate(chunks):
             data = json.dumps({
                 'job_id': job_id,
@@ -55,8 +56,8 @@ def publish_messages(job_id, video_path, watermark_path, chunks, topic_name):
                 'chunk_num': i + 1,
                 'total_chunks': len(chunks)
             }).encode('utf-8')
-            pub_client.publish(topic_name, data)
-            current_app.logger.info(f"Published message {i + 1} to {topic_name}")
+            pub_client.publish(topic_id, data)
+            current_app.logger.info(f"Published message {i + 1} to {topic_id}")
 
     #publish_messages()
 
