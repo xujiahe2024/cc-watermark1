@@ -81,7 +81,7 @@ def upload():
         blob = bucket.blob(f'videos/{job_id}.mp4')
         blob.upload_from_filename(video_path)
         
-        video_url = blob.public_url
+        video_url = f'videos/{job_id}.mp4'
         
         blob = bucket.blob(f'watermarks/{job_id}.png')
         blob.upload_from_filename(watermark_path)
