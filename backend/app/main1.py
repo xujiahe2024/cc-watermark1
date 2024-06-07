@@ -6,7 +6,7 @@ import os
 import logging
 from google.cloud import storage, firestore, pubsub_v1
 try:
-    from worker2 import split_video, merge_chunks, process_chunk
+    from worker2 import split_video
     import message_queue1
     import uuid
     import json
