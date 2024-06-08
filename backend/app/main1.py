@@ -84,7 +84,7 @@ def upload():
         #processor(job_id, video_path, watermark_path, storage, database)
       
 
-        chunks = split_video(video_path, chunk_length=10)
+        chunks = split_video(video_path, chunk_length=0.2)
         
         job_ref = database.collection('job').document(job_id)
         job_ref.set({
@@ -106,7 +106,7 @@ def upload():
         message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 
-        return jsonify({'Jobid': job_id, 'message': 'Your video is processing 1'})
+        return jsonify({'Jobid': job_id, 'message': 'Your video is processing 2'})
     
     except Exception as e:
         app.logger.error('Failed to process upload', exc_info=True)

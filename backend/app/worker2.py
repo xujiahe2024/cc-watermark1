@@ -10,9 +10,20 @@ output_dir = os.path.abspath('./output')
 def cal_video_length(video_path):
     video = VideoFileClip(video_path)
     logging.info(f"Video duration: {video.duration}")
-    return int(video.duration)
+    return video.duration
 
+def split_video(video_path, chunk_length=0.2):
+    video_length = cal_video_length(video_path)
+    chunks = []
+    start = 0.0
+    while start < video_length:
+        end = min(start + chunk_length, video_length)
+        chunks.append((start, end))
+        start += chunk_length
+    current_app.logger.info(f"Split video into {len(chunks)} chunks")
+    return chunks
 
+"""
 def split_video(video_path, chunk_length=10):
     video_length = cal_video_length(video_path)
     chunks = []
@@ -21,6 +32,7 @@ def split_video(video_path, chunk_length=10):
         chunks.append((start, end))
     current_app.logger.info(f"Split video into {len(chunks)} chunks")
     return chunks
+    """
     
 """
 def process_chunk(job_id, video_path, watermark_path, start, end, current_chunk, total_chunks, storage, database):

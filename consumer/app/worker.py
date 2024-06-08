@@ -76,8 +76,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         logging.info(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
-        merge_chunks(job_id)
-        job_ref.update({'status': 'completed', 'progress': 100})
+            merge_chunks(job_id)
+            job_ref.update({'status': 'completed', 'progress': 100})
 
 
 
