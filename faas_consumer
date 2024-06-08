@@ -59,8 +59,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
 
         processed = CompositeVideoClip([video, watermark])
         chunk_path = f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm'
-        tmpfilePath = f'{tmpdir}/{job_id}_final_chunk_{current_chunk}_temp_audiofile_path'
-        processed.write_videofile(chunk_path, temp_audiofile_path = tmpfilePath)
+        #tmpfilePath = f'{tmpdir}/{job_id}_final_chunk_{current_chunk}_temp_audiofile_path'
+        processed.write_videofile(chunk_path, temp_audiofile_path = tmpdir)
         
         print(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
@@ -92,8 +92,8 @@ def merge_chunks(job_id):
     #print(f"chunks_path: {chunks_path}")
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
-    tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
-    final_clip.write_videofile(f'{tmpdir}/final_{job_id}.mp4', temp_audiofile_path = tmpfilePath)
+    #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
+    final_clip.write_videofile(f'{tmpdir}/final_{job_id}.mp4', temp_audiofile_path = tmpdir)
     final_result_path = f'{tmpdir}/final_{job_id}.mp4'
 
     bucket = Storage.bucket('ccmarkbucket')

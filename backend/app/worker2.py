@@ -3,11 +3,13 @@ import os
 from google.cloud import firestore
 from google.cloud import storage
 from flask import current_app
+import logging
 
 output_dir = os.path.abspath('./output')
 
 def cal_video_length(video_path):
     video = VideoFileClip(video_path)
+    logging.info(f"Video duration: {video.duration}")
     return int(video.duration)
 
 
