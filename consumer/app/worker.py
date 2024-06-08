@@ -74,7 +74,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
 
         job_data = job_ref.get().to_dict()
         logging.info(f"Job data2: {job_data}")
-        if job_data['completed_chunks'] == job_data['total_chunks']:
+        if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
         merge_chunks(job_id)
         job_ref.update({'status': 'completed', 'progress': 100})
@@ -85,10 +85,12 @@ def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
+    logging.info(f"Job data3: {job_data}")
     chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    logging.info(f"chunks_path: {chunks_path}")
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(f'{output_dir}/final_{job_id}.webm', codec='libx264')
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.webm')
     final_result_path = f'{output_dir}/final_{job_id}.webm'
 
     bucket = Storage.bucket('ccmarkbucket')
