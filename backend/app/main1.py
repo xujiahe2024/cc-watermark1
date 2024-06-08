@@ -103,7 +103,7 @@ def upload():
         message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 
-        return jsonify({'Jobid': job_id, 'message': 'Your video is processing'})
+        return jsonify({'Jobid': job_id, 'message': 'Your video is processing 1'})
     
     except Exception as e:
         app.logger.error('Failed to process upload', exc_info=True)
