@@ -58,6 +58,10 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
+        
+        os.remove(video_path)
+        os.remove(watermark_path)
+        
         chunk_path = f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm'
         #tmpfilePath = f'{tmpdir}/{job_id}_final_chunk_{current_chunk}_temp_audiofile_path'
         processed.write_videofile(chunk_path, temp_audiofile_path = tmpdir)
@@ -67,6 +71,9 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         bucket = Storage.bucket('ccmarkbucket')
         blob = bucket.blob(f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm')
         blob.upload_from_filename(chunk_path)
+        
+        #delete chunk file
+        os.remove(chunk_path)
 
         print(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
         job_data = job_ref.get().to_dict()
@@ -99,6 +106,9 @@ def merge_chunks(job_id):
     bucket = Storage.bucket('ccmarkbucket')
     final_blob = bucket.blob(f'{tmpdir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
+    
+    os.remove(final_result_path)
+    
     print(f"Uploaded final result for job {job_id}")
 
 
