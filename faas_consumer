@@ -1,14 +1,10 @@
 import base64
-import functions_framework
-from google.cloud import pubsub_v1
 import json
-import logging
 from urllib.parse import unquote
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 import os
 from google.cloud import firestore
 from google.cloud import storage
-import logging
 
 
 
@@ -26,7 +22,7 @@ output_dir = os.path.abspath('./output')
 def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, total_chunks):
         global Storage
         global database
-        logging.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
+        print(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
@@ -47,7 +43,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
             blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
             blob.download_to_filename(watermark_path)
             
-        logging.info(f"Downloaded video for job {job_id}")
+        print(f"Downloaded video for job {job_id}")
         
         video = VideoFileClip(video_path)
 
@@ -60,22 +56,22 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
         processed.write_videofile(chunk_path)
         
-        logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
+        print(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
         blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
         blob.upload_from_filename(chunk_path)
 
-        logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
+        print(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
         job_data = job_ref.get().to_dict()
-        logging.info(f"Job data1: {job_data}")
+        print(f"Job data1: {job_data}")
         
         job_ref.update({'completed_chunks': firestore.Increment(1)})
 
         job_data = job_ref.get().to_dict()
-        logging.info(f"Job data2: {job_data}")
+        print(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
-            logging.info(f"All chunks processed for job {job_id}")
+            print(f"All chunks processed for job {job_id}")
         merge_chunks(job_id)
         job_ref.update({'status': 'completed', 'progress': 100})
 
@@ -85,9 +81,9 @@ def merge_chunks(job_id):
     database = firestore.Client()
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
-    logging.info(f"Job data3: {job_data}")
+    #print(f"Job data3: {job_data}")
     chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
-    logging.info(f"chunks_path: {chunks_path}")
+    #print(f"chunks_path: {chunks_path}")
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4')
@@ -96,37 +92,25 @@ def merge_chunks(job_id):
     bucket = Storage.bucket('ccmarkbucket')
     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
-    logging.info(f"Uploaded final result for job {job_id}")
+    print(f"Uploaded final result for job {job_id}")
 
 
 
 
 
-# Triggered from a message on a Cloud Pub/Sub topic.
-@functions_framework.cloud_event
-def hello_pubsub(message):
-    # Print out the data from Pub/Sub, to prove that it worked
-    print(base64.b64decode(message.data["message"]["data"]))
+
+def hello_pubsub(event, context):
+    """Triggered from a message on a Cloud Pub/Sub topic.
+    Args:
+         event (dict): Event payload.
+         context (google.cloud.functions.Context): Metadata for the event.
+    """
     try:
-                data = json.loads(message.data.decode('utf-8'))
-                logging.info(f"Received message : {data}")
-                
-                # Decode the URL
-                video_url = unquote(data['video_url'])
+                pubsub_message = base64.b64decode(event['data']).decode('utf-8')
+                print(f"Received message : {pubsub_message}")
 
-                process_chunk(data['job_id'], video_url, data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
-                message.ack()
+                process_chunk(pubsub_message['job_id'], video_url, pubsub_message['watermark_path'], pubsub_message['start'], pubsub_message['end'], pubsub_message['chunk_num'], pubsub_message['total_chunks'])
+                event.ack()
     except Exception as e:
-                logging.info(f"An error occurred while processing message: {e}")
-                message.ack()
-
-
-
-
-
-
-
-
-
-   
-  
+                print(f"An error occurred while processing message: {e}")
+                event.ack()
