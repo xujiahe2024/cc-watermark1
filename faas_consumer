@@ -5,6 +5,7 @@ from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concate
 import os
 from google.cloud import firestore
 from google.cloud import storage
+from io import BytesIO
 
 
 
@@ -28,28 +29,33 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         
         video_path = f'{output_dir}/{job_id}_video_{current_chunk}.webm'
         
-        if not os.path.exists(output_dir):
-            os.makedirs(output_dir)
+        #if not os.path.exists(output_dir):
+        #   os.makedirs(output_dir)
         
         right_video_url = f'videos/{job_id}_{current_chunk}.webm'
         
-        if not os.path.exists(video_path):
-            blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
-            blob.download_to_filename(video_path)
+        blob_video_data = BytesIO()
+        blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
+        blob.download_to_file(blob_video_data)
+        blob_video_data.seek(0)
             
-            
-        watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
-        if not os.path.exists(watermark_path):
-            blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
-            blob.download_to_filename(watermark_path)
+        #watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
+        
+        blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
+        blob_pic_data = BytesIO()
+        blob.download_to_file(blob_pic_data)
+        blob_pic_data.seek(0)
+        
+        
+        
             
         print(f"Downloaded video for job {job_id}")
         
-        video = VideoFileClip(video_path)
+        video = blob_video_data
 
         #video.duration = 10
         #video = VideoFileClip(video_path).subclip(start, end)
-        watermark = ImageClip(watermark_path).set_duration(video.duration)
+        watermark = ImageClip(blob_pic_data).set_duration(video.duration)
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
@@ -111,7 +117,5 @@ def hello_pubsub(event, context):
                 pubsub_message = json.loads(pubsub_message)
 
                 process_chunk(pubsub_message['job_id'], "", pubsub_message['watermark_path'], pubsub_message['start'], pubsub_message['end'], pubsub_message['chunk_num'], pubsub_message['total_chunks'])
-                event.ack()
     except Exception as e:
                 print(f"An error occurred while processing message: {e}")
-                event.ack()
