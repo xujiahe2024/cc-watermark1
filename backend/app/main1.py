@@ -43,6 +43,9 @@ def upload():
         videourl = request.form.get('Videourl')
         isFaas = request.form.get('IsFaas')
         markimage = request.files.get('Watermarkimage')
+        logging.info('isFaas: ' + isFaas)
+        for key, value in request.form.items():
+            logging.info(f"Key: {key}, Value: {value}")
 
         if not (videofile or videourl) or not markimage:
             return jsonify({'You have to upload video and markimage'}), 400
