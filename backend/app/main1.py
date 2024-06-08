@@ -38,6 +38,7 @@ publisher = pubsub_v1.PublisherClient()
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
+        logging.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
         isFaas = request.form.get('IsFaas')
