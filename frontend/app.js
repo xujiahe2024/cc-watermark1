@@ -14,6 +14,7 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
     let Videofile = document.getElementById('Videofile').files[0];
     let Videourl = document.getElementById('Videourl').value;
     let Watermarkimage = document.getElementById('Watermarkimage').files[0];
+    let IsFaas = document.getElementById('IsFaas').checked;
 
     if (!Videofile && !Videourl) {
         alert('Please upload a video or url');
