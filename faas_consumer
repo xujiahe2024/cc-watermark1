@@ -105,11 +105,12 @@ def hello_pubsub(event, context):
          event (dict): Event payload.
          context (google.cloud.functions.Context): Metadata for the event.
     """
-    try:
+    try:        
                 pubsub_message = base64.b64decode(event['data']).decode('utf-8')
                 print(f"Received message : {pubsub_message}")
+                pubsub_message = json.loads(pubsub_message)
 
-                process_chunk(pubsub_message['job_id'], video_url, pubsub_message['watermark_path'], pubsub_message['start'], pubsub_message['end'], pubsub_message['chunk_num'], pubsub_message['total_chunks'])
+                process_chunk(pubsub_message['job_id'], "", pubsub_message['watermark_path'], pubsub_message['start'], pubsub_message['end'], pubsub_message['chunk_num'], pubsub_message['total_chunks'])
                 event.ack()
     except Exception as e:
                 print(f"An error occurred while processing message: {e}")
