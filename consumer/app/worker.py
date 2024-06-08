@@ -90,11 +90,11 @@ def merge_chunks(job_id):
     logging.info(f"chunks_path: {chunks_path}")
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
-    final_clip.write_videofile(f'{output_dir}/final_{job_id}.webm')
-    final_result_path = f'{output_dir}/final_{job_id}.webm'
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4')
+    final_result_path = f'{output_dir}/final_{job_id}.mp4'
 
     bucket = Storage.bucket('ccmarkbucket')
-    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.webm')
+    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
     logging.info(f"Uploaded final result for job {job_id}")
 
