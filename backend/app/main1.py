@@ -84,7 +84,7 @@ def upload():
         #processor(job_id, video_path, watermark_path, storage, database)
       
 
-        chunks = split_video(video_path, chunk_length=0.1)
+        chunks = split_video(video_path, chunk_length=0.05)
         
         job_ref = database.collection('job').document(job_id)
         job_ref.set({
