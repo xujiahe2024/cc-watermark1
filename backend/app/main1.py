@@ -70,7 +70,6 @@ def upload():
         videourl = request.form.get('Videourl')
         isFaas = request.form.get('IsFaas')
         markimage = request.files.get('Watermarkimage')
-        app.logger.info('isFaas: ' + isFaas)
         for key, value in request.form.items():
             app.logger.info(f"Key: {key}, Value: {value}")
 
@@ -170,9 +169,7 @@ def upload_to_faas():
         app.logger.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
-        isFaas = request.form.get('IsFaas')
         markimage = request.files.get('Watermarkimage')
-        app.logger.info('isFaas: ' + isFaas)
         for key, value in request.form.items():
             app.logger.info(f"Key: {key}, Value: {value}")
 
