@@ -8,6 +8,8 @@ from google.cloud import storage
 
 import tempfile
 
+output_dir = os.path.abspath('./output')
+
 
 tmpdir = tempfile.gettempdir()
 
@@ -69,7 +71,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         print(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
-        blob = bucket.blob(f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm')
+        blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
         blob.upload_from_filename(chunk_path)
         
         #delete chunk file
