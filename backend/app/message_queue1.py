@@ -58,7 +58,6 @@ def initialize_publisher():
     #         print(f"Published {data} to {topic_path}: {future.result()}")
 
 def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
-    isFaas = 'true'
     maxChunks = 0
     with current_app.app_context():
         current_app.logger.info(f"Topic path: {topic_path}")

@@ -3,6 +3,7 @@ import os
 from google.cloud import firestore
 from google.cloud import storage
 import logging
+import time
 
 Storage = storage.Client()
 database = firestore.Client()
@@ -26,7 +27,8 @@ def split_video(video_path, chunk_length=10):
 def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, total_chunks):
         global Storage
         global database
-        logging.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
+        start_time = time.time()
+        #logging.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
@@ -49,6 +51,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
             
         logging.info(f"Downloaded video for job {job_id}")
         
+        download_time = time.time()
+        
         video = VideoFileClip(video_path)
 
         #video.duration = 10
@@ -57,20 +61,39 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         watermark = watermark.resize(height=50).margin(right=8, bottom=8, opacity=0).set_position(("right", "bottom"))
 
         processed = CompositeVideoClip([video, watermark])
+        
+        process_time = time.time()
+        
+        os.remove(video_path)
+        os.remove(watermark_path)
+        
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
         processed.write_videofile(chunk_path)
+        
+        
         
         logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
         blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
         blob.upload_from_filename(chunk_path)
+        
+        #delete chunk file
+        os.remove(chunk_path)
+        
+        process_time = time.time()
 
         logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
         job_data = job_ref.get().to_dict()
         #logging.info(f"Job data1: {job_data}")
         
         job_ref.update({'completed_chunks': firestore.Increment(1)})
+        job_ref.set({f'task_{current_chunk}':{
+            'download_time': download_time - start_time,
+            'process_time': process_time - download_time,
+            'upload_time': time.time() - process_time
+            }}, merge=True)
+
 
         job_data = job_ref.get().to_dict()
         #logging.info(f"Job data2: {job_data}")
