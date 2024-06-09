@@ -49,12 +49,13 @@ def download_chunk(chunk, chunk_path_web):
     
 
 #parallel preclip into chunks
-def clip_chunk(i, start_end, video, job_id, bucket):
+def clip_chunk(i, start_end, full_video, job_id, bucket):
     start, end = start_end
-    video = video.subclip(start, end)
+    video = full_video.subclip(start, end)
     video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
     blob = bucket.blob(f'videos/{job_id}_{i}.webm')
     blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
+    os.remove(f'{output_dir}/{job_id}_chunk{i}.webm')
 
 
 @app.route('/upload', methods=['POST'])
