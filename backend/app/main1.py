@@ -3,6 +3,8 @@ from flask_cors import CORS
 from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concatenate_videoclips
 import os
 import logging
+import threading
+
 from google.cloud import storage, firestore, pubsub_v1
 import concurrent.futures
 try:
@@ -12,6 +14,10 @@ try:
     import json
 except Exception as e:
     print(f"An error occurred while importing modules: {e}")
+    
+    
+# Create a lock
+merge_lock = threading.Lock()
 
 output_dir = os.path.abspath('./output')
 
@@ -111,19 +117,21 @@ def upload():
             'resulturl': None
         })
         
+        """
         for i, (start, end) in enumerate(chunks):
             video = VideoFileClip(video_path).subclip(start, end)
             video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
+        """    
             
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), len(chunks)*[len(chunks)])
-        message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
+        #message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 
         return jsonify({'Jobid': job_id, 'message': 'Your video is processing 2'})
@@ -145,9 +153,12 @@ def status():
     if not job.exists:
         return jsonify({'error': 'There is no job.'}), 404
     job_data = job.to_dict()
-    if job_data['completed_chunks'] >= job_data['total_chunks']:
-        merge_chunks(job_id)
-        job_ref.update({'status': 'completed', 'progress': 100})
+    if job_data['completed_chunks'] >= job_data['total_chunks'] and job_data['status'] != 'completed':
+        if merge_lock.acquire(blocking=False):
+            merge_chunks(job_id)
+            merge_lock.release()
+            job = job_ref.get()
+            job_data = job.to_dict()
 
     return jsonify(job_data)
 
@@ -183,6 +194,8 @@ def merge_chunks(job_id):
     os.remove(final_result_path)
     for chunk in chunks_path:
         os.remove(chunk)
+    
+    job_ref.update({'status': 'completed', 'progress': 100})
     
     #print(f"Uploaded final result for job {job_id}")
 
