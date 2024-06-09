@@ -4,6 +4,7 @@ from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concate
 import os
 import logging
 from google.cloud import storage, firestore, pubsub_v1
+import concurrent.futures
 try:
     from worker2 import split_video
     import message_queue1
@@ -33,6 +34,20 @@ bucketname = 'ccmarkbucket'
 publisher = pubsub_v1.PublisherClient()
 #topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
+
+#parallel downloading of chunks
+def download_chunk(chunk, chunk_path_web):
+    chunk_blob = storage.bucket(bucketname).blob(chunk_path_web)
+    chunk_blob.download_to_filename(chunk)
+    
+
+#parallel preclip into chunks
+def clip_chunk(i, start_end, video_path, job_id, bucket):
+    start, end = start_end
+    video = VideoFileClip(video_path).subclip(start, end)
+    video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
+    blob = bucket.blob(f'videos/{job_id}_{i}.webm')
+    blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
 
 
 @app.route('/upload', methods=['POST'])
@@ -96,14 +111,18 @@ def upload():
             'resulturl': None
         })
         
-        
         for i, (start, end) in enumerate(chunks):
             video = VideoFileClip(video_path).subclip(start, end)
             video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
+            
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), len(chunks)*[len(chunks)])
         message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 
@@ -142,9 +161,14 @@ def merge_chunks(job_id):
     chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
+    """
     for i, chunk in enumerate(chunks_path):
         chunk_blob = storage.bucket(bucketname).blob(chunks_path_web[i])
         chunk_blob.download_to_filename(chunk)
+    """
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(download_chunk, chunks_path, chunks_path_web)
         
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)

@@ -4,6 +4,7 @@ from google.cloud import firestore
 from google.cloud import storage
 from flask import current_app
 import logging
+import concurrent.futures
 
 output_dir = os.path.abspath('./output')
 

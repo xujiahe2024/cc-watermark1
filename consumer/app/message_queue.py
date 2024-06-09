@@ -102,6 +102,7 @@ def initialize_subscriber():
 
     
         def callback(message): #处理来自pub的消息
+            
             try:
                 data = json.loads(message.data.decode('utf-8'))
                 logging.info(f"Received message : {data}")

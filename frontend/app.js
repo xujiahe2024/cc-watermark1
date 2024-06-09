@@ -7,6 +7,37 @@ urlprefix = "http://35.204.29.159:8071";
 //    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
 //}
 
+async function checkStatus(useAlert=true) {
+    const Jobid = document.getElementById('Jobid').value;
+    if(!Jobid){
+        if (useAlert) alert('Please enter a job id');
+        return;
+    }
+
+    try {
+        const response = await fetch(urlprefix + '/status?Jobid=' + Jobid);
+        if (response.ok) {
+            const result = await response.json();
+            const progress = result.progress;
+            document.getElementById('progress').innerText = 'Progress:' + progress;
+            if (progress === 100) {
+                document.getElementById('Downloadbutton').setAttribute('data-jobid', Jobid);
+                return 'done'
+            } else {
+                if (useAlert)
+                    alert('Your task is still in process!')
+            }
+        } else {
+            if (useAlert)
+                alert('Fail to get status!');
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        if (useAlert)
+            alert('An unexpected error happened, please try again!');
+    }
+}
+
 
 document.getElementById('Uploadform').addEventListener('submit',async function (e) {
     e.preventDefault();
@@ -43,6 +74,15 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
             alert('Upload successful! Your job id is:' + result.Jobid);
             document.getElementById('displayJobid').innerText = result.Jobid;
             document.getElementById('Jobid').value = result.Jobid;
+
+            // Start polling for status
+            const statusIntervalId = setInterval(function(){
+                done = checkStatus(useAlert=false);
+                if (done === 'done') {
+                    clearInterval(statusIntervalId);
+                }
+            }, 1000);  // Poll every 1 second
+
         } else {
             alert('Upload failed, please try again!')
         }
@@ -53,32 +93,8 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
     }
 });
 
-document.getElementById('Checkstatus').addEventListener('click', async function () {
-    const Jobid = document.getElementById('Jobid').value;
-    if(!Jobid){
-        alert('Please enter a job id');
-        return;
-    }
-
-    try {
-        const response = await fetch(urlprefix + '/status?Jobid=' + Jobid);
-        if (response.ok) {
-            const result = await response.json();
-            const progress = result.progress;
-            document.getElementById('progress').innerText = 'Progress:' + progress;
-            if (progress === 100) {
-                document.getElementById('Downloadbutton').setAttribute('data-jobid', Jobid);
-            } else {
-                alert('Your task is still in process!')
-            }
-        } else {
-            alert('Fail to get statuts!');
-        }
-    } catch (error) {
-        console.error('Error:', error);
-        alert('An unexpected error happened, please try again!');
-
-    }
+document.getElementById('Checkstatus').addEventListener('click', function(){
+    checkStatus(useAlert=true);
 });
 
 document.getElementById('Downloadbutton').addEventListener('click', function () {

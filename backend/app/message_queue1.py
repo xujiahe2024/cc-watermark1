@@ -82,6 +82,33 @@ def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
         current_app.logger.info(f"Published {maxChunks} messages to {topic_name}")
 
     #publish_messages()
+    
+    
+def publish_message(job_id, isFaas, watermark_path, chunk, video_url, current_chunk, total_chunks):
+    isFaas = 'true'
+    with current_app.app_context():
+        #current_app.logger.info(f"Topic path: {topic_path}")
+        #current_chunk
+        (start, end) = chunk
+
+        data = json.dumps({
+            'job_id': job_id,
+            'video_url': video_url,
+            'watermark_path': watermark_path,
+            'start': start,
+            'end': end,
+            'chunk_num': current_chunk,
+            'total_chunks': total_chunks
+        }).encode('utf-8')
+        if isFaas:
+            future = pub_client.publish(topic_name_faas, data)
+            current_app.logger.info(f"Published message {current_chunk} to {topic_name_faas}")
+        else:
+            future = pub_client.publish(topic_name, data)
+            current_app.logger.info(f"Published message {current_chunk} to {topic_name}")
+            #current_app.logger.info(f"Published message future: {future.result()}")
+
+    #publish_messages()
 
 
 
