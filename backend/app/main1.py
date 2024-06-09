@@ -85,6 +85,7 @@ def upload():
       
 
         chunks = split_video(video_path, chunk_length=0.05)
+        chunks = chunks[:-1]
         
         job_ref = database.collection('job').document(job_id)
         job_ref.set({

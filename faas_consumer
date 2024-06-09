@@ -27,7 +27,7 @@ database = firestore.Client()
 def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, total_chunks):
         global Storage
         global database
-        print(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
+        #print(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
         database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
@@ -75,11 +75,12 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         #delete chunk file
         os.remove(chunk_path)
 
-        print(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
+        #print(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
         job_data = job_ref.get().to_dict()
         #print(f"Job data1: {job_data}")
         
         job_ref.update({'completed_chunks': firestore.Increment(1)})
+        job_ref.set({f'task_{current_chunk}':"done"}, merge=True)
 
         job_data = job_ref.get().to_dict()
         #print(f"Job data2: {job_data}")
@@ -124,7 +125,7 @@ def hello_pubsub(event, context):
     """
     try:        
                 pubsub_message = base64.b64decode(event['data']).decode('utf-8')
-                print(f"Received message : {pubsub_message}")
+                #print(f"Received message : {pubsub_message}")
                 pubsub_message = json.loads(pubsub_message)
 
                 process_chunk(pubsub_message['job_id'], "", pubsub_message['watermark_path'], pubsub_message['start'], pubsub_message['end'], pubsub_message['chunk_num'], pubsub_message['total_chunks'])

@@ -59,6 +59,7 @@ def initialize_publisher():
 
 def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
     isFaas = 'true'
+    maxChunks = 0
     with current_app.app_context():
         current_app.logger.info(f"Topic path: {topic_path}")
         for i, (start, end) in enumerate(chunks):
@@ -77,7 +78,8 @@ def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
             else:
                 future = pub_client.publish(topic_name, data)
                 current_app.logger.info(f"Published message {i} to {topic_name}")
-            current_app.logger.info(f"Published message future: {future.result()}")
+            #current_app.logger.info(f"Published message future: {future.result()}")
+        current_app.logger.info(f"Published {maxChunks} messages to {topic_name}")
 
     #publish_messages()
 
