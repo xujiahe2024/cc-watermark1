@@ -45,8 +45,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
             blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
             blob.download_to_filename(video_path)
             
-            
-        watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
+        watermark_path = f'{output_dir}/{job_id}_watermark.png'
+        #watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
         if not os.path.exists(watermark_path):
             blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
             blob.download_to_filename(watermark_path)
