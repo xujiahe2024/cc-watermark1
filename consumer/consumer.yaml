@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: watermark-consumer
 spec:
-  replicas: 1
+  replicas: 3
   selector:
     matchLabels:
       app: watermark-consumer
