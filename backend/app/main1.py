@@ -122,7 +122,7 @@ def status():
         return jsonify({'error': 'Job ID is required.'}), 400
     
     job_ref = database.collection('job').document(job_id)
-    job = job_ref.get()
+    job = job_ref.get().to_dict()
     if not job.exists:
         return jsonify({'error': 'There is no job.'}), 404
     if job['completed_chunks'] >= job['total_chunks']:
