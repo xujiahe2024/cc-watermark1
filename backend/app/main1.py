@@ -42,6 +42,8 @@ publisher = pubsub_v1.PublisherClient()
 #topic_name = 'projects/watermarking-424614/topics/image-watermark-sub'
 
 
+current_app = app
+
 #parallel downloading of chunks
 def download_chunk(chunk, chunk_path_web):
     chunk_blob = storage.bucket(bucketname).blob(chunk_path_web)
@@ -50,12 +52,14 @@ def download_chunk(chunk, chunk_path_web):
 
 #parallel preclip into chunks
 def clip_chunk(i, start_end, full_video, job_id, bucket):
-    start, end = start_end
-    video = full_video.subclip(start, end)
-    video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
-    blob = bucket.blob(f'videos/{job_id}_{i}.webm')
-    blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
-    os.remove(f'{output_dir}/{job_id}_chunk{i}.webm')
+    with current_app.app_context():
+        current_app.logger.info(f"Processing chunk {i} for job {job_id}")
+        start, end = start_end
+        video = full_video.subclip(start, end)
+        video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
+        blob = bucket.blob(f'videos/{job_id}_{i}.webm')
+        blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
+        os.remove(f'{output_dir}/{job_id}_chunk{i}.webm')
 
 
 @app.route('/upload', methods=['POST'])

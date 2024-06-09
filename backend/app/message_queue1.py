@@ -78,6 +78,7 @@ def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
                 future = pub_client.publish(topic_name, data)
                 #current_app.logger.info(f"Published message {i} to {topic_name}")
             #current_app.logger.info(f"Published message future: {future.result()}")
+            maxChunks = maxChunks + 1
         current_app.logger.info(f"Published {maxChunks} messages to {topic_name}")
 
     #publish_messages()
