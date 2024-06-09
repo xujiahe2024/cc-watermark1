@@ -88,7 +88,7 @@ subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
 def initialize_subscriber():
         #current_app.logger.info(f"Subscription name: {subscription_name}")
         subscriber = pubsub_v1.SubscriberClient()
-        subscriber2 = pubsub_v1.SubscriberClient()
+        #subscriber2 = pubsub_v1.SubscriberClient()
         #subscriber3 = pubsub_v1.SubscriberClient()
         
         subscription_path = subscriber.subscription_path(project_id, subscription_id)
@@ -119,7 +119,7 @@ def initialize_subscriber():
                 logging.info(f"An error occurred while processing message: {e}")
                 message.ack()
 
-        subscriber2.subscribe(subscription_path, callback=callback)
+        #subscriber2.subscribe(subscription_path, callback=callback)
         #subscriber3.subscribe(subscription_path, callback=callback)
         streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
         logging.info(f"Listening for messages on {subscription_path}\n")
