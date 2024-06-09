@@ -139,10 +139,11 @@ def merge_chunks(job_id):
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
     #print(f"Job data3: {job_data}")
-    chunks_path = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
-    for chunk in chunks_path:
-        chunk_blob = storage.bucket(bucketname).blob(chunk)
+    for i, chunk in chunks_path:
+        chunk_blob = storage.bucket(bucketname).blob(chunks_path_web[i])
         chunk_blob.download_to_filename(chunk)
         
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
