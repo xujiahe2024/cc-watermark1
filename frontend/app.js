@@ -60,14 +60,22 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
     const Formdata = new FormData();
     if (Videofile) Formdata.append('Videofile', Videofile);
     if (Videourl) Formdata.append('Videourl', Videourl);
-    if (IsFaas) Formdata.append('IsFaas', IsFaas);
+    //if (IsFaas) Formdata.append('IsFaas', IsFaas);
     Formdata.append('Watermarkimage',  Watermarkimage);
 
     try {
-        const response = await fetch(urlprefix + '/upload', {
-            method: 'POST',
-            body: Formdata
-        });
+        var response;
+        if (IsFaas) {
+            response = await fetch(urlprefix + '/upload_to_faas', {
+                method: 'POST',
+                body: Formdata
+            });
+        }else{
+            response = await fetch(urlprefix + '/upload', {
+                method: 'POST',
+                body: Formdata
+            });
+        }
 
         if (response.ok) { 
             const result = await response.json();

@@ -38,6 +38,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
             os.makedirs(output_dir)
         
         right_video_url = f'videos/{job_id}_{current_chunk}.webm'
+        #video_path = f'{tmpdir}/{job_id}_video_{current_chunk}.webm'
+        #f'videos/{job_id}_{i}.webm'
         
         if not os.path.exists(video_path):
             blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
