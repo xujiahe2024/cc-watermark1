@@ -32,7 +32,7 @@ class MyFlaskApp(Flask):
 
 
 app = MyFlaskApp(__name__)
-app.logger.setLevel(app.logger.info)
+app.logger.setLevel(logging.INFO)
 app.app_context().push()
 
 
