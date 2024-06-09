@@ -74,10 +74,10 @@ def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
             }).encode('utf-8')
             if isFaas:
                 future = pub_client.publish(topic_name_faas, data)
-                current_app.logger.info(f"Published message {i} to {topic_name_faas}")
+                #current_app.logger.info(f"Published message {i} to {topic_name_faas}")
             else:
                 future = pub_client.publish(topic_name, data)
-                current_app.logger.info(f"Published message {i} to {topic_name}")
+                #current_app.logger.info(f"Published message {i} to {topic_name}")
             #current_app.logger.info(f"Published message future: {future.result()}")
         current_app.logger.info(f"Published {maxChunks} messages to {topic_name}")
 
