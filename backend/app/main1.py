@@ -49,9 +49,9 @@ def download_chunk(chunk, chunk_path_web):
     
 
 #parallel preclip into chunks
-def clip_chunk(i, start_end, video_path, job_id, bucket):
+def clip_chunk(i, start_end, video, job_id, bucket):
     start, end = start_end
-    video = VideoFileClip(video_path).subclip(start, end)
+    video = video.subclip(start, end)
     video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
     blob = bucket.blob(f'videos/{job_id}_{i}.webm')
     blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
@@ -128,17 +128,19 @@ def upload():
         })
         
         full_video = VideoFileClip(video_path)
+        
+        """
         for i, (start, end) in enumerate(chunks):
             video = full_video.subclip(start, end)
             video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
+        """
         
-        """
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
-        """
+            executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+        
         splittime = time.time()
         app.logger.info(f"Time taken to split video: {splittime - uploadtime}")
         
@@ -174,6 +176,7 @@ def status():
         if merge_lock.acquire(blocking=False):
             merge_chunks(job_id)
             merge_lock.release()
+            job_ref = database.collection('job').document(job_id)
             job = job_ref.get()
             job_data = job.to_dict()
 
