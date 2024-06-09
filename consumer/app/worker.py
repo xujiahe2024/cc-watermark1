@@ -73,7 +73,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         os.remove(watermark_path)
         
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
-        processed.write_videofile(chunk_path)
+        processed.write_videofile(chunk_path, logger=None)
         
         
         
@@ -89,7 +89,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         process_time = time.time()
 
         logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
-        job_data = job_ref.get().to_dict()
+        #job_data = job_ref.get().to_dict()
         #logging.info(f"Job data1: {job_data}")
         
         job_ref.update({'completed_chunks': firestore.Increment(1)})
@@ -101,7 +101,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
 
 
         job_data = job_ref.get().to_dict()
-        #logging.info(f"Job data2: {job_data}")
+        logging.info(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
             #merge_chunks(job_id)
