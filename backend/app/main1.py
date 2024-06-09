@@ -179,8 +179,8 @@ def status():
                 merge_lock.release()
                 job_ref = database.collection('job').document(job_id)
                 job = job_ref.get()
-            job_data = job.to_dict()
-            return jsonify(job_data)
+        job_data = job.to_dict()
+        return jsonify(job_data)
     except Exception as e:
         app.logger.error('Failed to get status', exc_info=True)
         return jsonify({'error': str(e)}), 500
