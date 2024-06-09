@@ -105,12 +105,12 @@ def initialize_subscriber():
             
             try:
                 data = json.loads(message.data.decode('utf-8'))
-                logging.info(f"Received message : {data}")
+                #logging.info(f"Received message : {data}")
                 
                 # Decode the URL
-                video_url = unquote(data['video_url'])
+                #video_url = unquote(data['video_url'])
 
-                process_chunk(data['job_id'], video_url, data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
+                process_chunk(data['job_id'], "", data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
                 message.ack()
             except Exception as e:
                 logging.info(f"An error occurred while processing message: {e}")
