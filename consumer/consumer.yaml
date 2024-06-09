@@ -15,11 +15,17 @@ spec:
         app: watermark-consumer
         tier: watermark-consumer
         track: stable
-
     spec:
       containers:
         - name: watermark-consumer
           image: gcr.io/watermarking-424614/watermark-consumer
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
           ports:
            - containerPort: 8080
           env:
