@@ -163,24 +163,28 @@ def upload():
 
 @app.route('/status', methods=['GET'])
 def status():
-    job_id = request.args.get('Jobid')
-    if not job_id:
-        return jsonify({'error': 'Job ID is required.'}), 400
+    try:
+        job_id = request.args.get('Jobid')
+        if not job_id:
+            return jsonify({'error': 'Job ID is required.'}), 400
     
-    job_ref = database.collection('job').document(job_id)
-    job = job_ref.get()
-    if not job.exists:
-        return jsonify({'error': 'There is no job.'}), 404
-    job_data = job.to_dict()
-    if job_data['completed_chunks'] >= job_data['total_chunks'] and job_data['status'] != 'completed':
-        if merge_lock.acquire(blocking=False):
-            merge_chunks(job_id)
-            merge_lock.release()
-            job_ref = database.collection('job').document(job_id)
-            job = job_ref.get()
+        job_ref = database.collection('job').document(job_id)
+        job = job_ref.get()
+        if not job.exists:
+            return jsonify({'error': 'There is no job.'}), 404
+        job_data = job.to_dict()
+        if job_data['completed_chunks'] >= job_data['total_chunks'] and job_data['status'] != 'completed':
+            if merge_lock.acquire(blocking=False):
+                merge_chunks(job_id)
+                merge_lock.release()
+                job_ref = database.collection('job').document(job_id)
+                job = job_ref.get()
             job_data = job.to_dict()
-
-    return jsonify(job_data)
+            return jsonify(job_data)
+    except Exception as e:
+        app.logger.error('Failed to get status', exc_info=True)
+        return jsonify({'error': str(e)}), 500
+    
 
 
 def merge_chunks(job_id):
@@ -192,7 +196,7 @@ def merge_chunks(job_id):
     chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
-    """
+    
     for i, chunk in enumerate(chunks_path):
         chunk_blob = storage.bucket(bucketname).blob(chunks_path_web[i])
         chunk_blob.download_to_filename(chunk)
@@ -200,10 +204,12 @@ def merge_chunks(job_id):
     
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(download_chunk, chunks_path, chunks_path_web)
+    """
         
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
+    final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
     final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
     final_result_path = f'{output_dir}/final_{job_id}.mp4'
 
@@ -215,7 +221,7 @@ def merge_chunks(job_id):
     for chunk in chunks_path:
         os.remove(chunk)
     
-    job_ref.update({'status': 'completed', 'progress': 100})
+    job_ref.update({'status': 'completed', 'progress': 100, 'resulturl': final_blob.public_url})
     
     #print(f"Uploaded final result for job {job_id}")
 
