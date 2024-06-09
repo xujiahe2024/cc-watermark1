@@ -311,7 +311,7 @@ def merge_chunks(job_id):
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
-    final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
+    #final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
     final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
     final_result_path = f'{output_dir}/final_{job_id}.mp4'
 
