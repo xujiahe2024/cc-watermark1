@@ -12,7 +12,7 @@ def cal_video_length(video_path):
     logging.info(f"Video duration: {video.duration}")
     return video.duration
 
-def split_video(video_path, chunk_length=0.2):
+def split_video(video_path, chunk_length=0.1):
     video_length = cal_video_length(video_path)
     chunks = []
     start = 0.0

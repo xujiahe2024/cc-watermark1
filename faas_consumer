@@ -64,7 +64,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         
         chunk_path = f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm'
         #tmpfilePath = f'{tmpdir}/{job_id}_final_chunk_{current_chunk}_temp_audiofile_path'
-        processed.write_videofile(chunk_path, temp_audiofile_path = tmpdir)
+        processed.write_videofile(chunk_path, temp_audiofile_path = tmpdir, logger = None)
         
         print(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
@@ -85,8 +85,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         print(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             print(f"All chunks processed for job {job_id}")
-        merge_chunks(job_id)
-        job_ref.update({'status': 'completed', 'progress': 100})
+            merge_chunks(job_id)
+            job_ref.update({'status': 'completed', 'progress': 100})
 
 
 
@@ -100,7 +100,7 @@ def merge_chunks(job_id):
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
-    final_clip.write_videofile(f'{tmpdir}/final_{job_id}.mp4', temp_audiofile_path = tmpdir)
+    final_clip.write_videofile(f'{tmpdir}/final_{job_id}.mp4', temp_audiofile_path = tmpdir, logger = None)
     final_result_path = f'{tmpdir}/final_{job_id}.mp4'
 
     bucket = Storage.bucket('ccmarkbucket')
