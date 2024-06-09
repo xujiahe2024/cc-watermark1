@@ -40,7 +40,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         right_video_url = f'videos/{job_id}_{current_chunk}.webm'
         #video_path = f'{tmpdir}/{job_id}_video_{current_chunk}.webm'
         #f'videos/{job_id}_{i}.webm'
-        print(output_dir)
+        #print(output_dir)
         
         if not os.path.exists(video_path):
             blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
@@ -52,7 +52,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
         blob.download_to_filename(watermark_path)
         
-        print("watermark_path: ", watermark_path)
+        #print("watermark_path: ", watermark_path)
             
         #logging.info(f"Downloaded video for job {job_id}")
         
@@ -77,7 +77,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         
         
         
-        logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
+        #logging.info(f"Processed chunk {current_chunk} of {total_chunks} for job {job_id}")
 
         bucket = Storage.bucket('ccmarkbucket')
         blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
@@ -88,7 +88,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         
         process_time = time.time()
 
-        logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
+        #logging.info(f"Uploaded chunk {current_chunk} of {total_chunks} for job {job_id}")
         #job_data = job_ref.get().to_dict()
         #logging.info(f"Job data1: {job_data}")
         
@@ -101,7 +101,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
 
 
         job_data = job_ref.get().to_dict()
-        logging.info(f"Job data2: {job_data}")
+        #logging.info(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
             #merge_chunks(job_id)
