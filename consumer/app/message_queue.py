@@ -110,7 +110,7 @@ def initialize_subscriber():
                 # Decode the URL
                 #video_url = unquote(data['video_url'])
 
-                process_chunk(data['job_id'], "", data['watermark_path'], data['start'], data['end'], data['chunk_num'], data['total_chunks'])
+                process_chunk(data['job_id'], "", data['start'], data['end'], data['chunk_num'], data['total_chunks'])
                 message.ack()
             except Exception as e:
                 logging.info(f"An error occurred while processing message: {e}")

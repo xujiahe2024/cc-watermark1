@@ -24,7 +24,7 @@ def split_video(video_path, chunk_length=10):
     return chunks
     
 
-def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, total_chunks):
+def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         global Storage
         global database
         start_time = time.time()
@@ -40,12 +40,13 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         right_video_url = f'videos/{job_id}_{current_chunk}.webm'
         #video_path = f'{tmpdir}/{job_id}_video_{current_chunk}.webm'
         #f'videos/{job_id}_{i}.webm'
+        print(output_dir)
         
         if not os.path.exists(video_path):
             blob = Storage.bucket('ccmarkbucket').blob(right_video_url)
             blob.download_to_filename(video_path)
             
-        watermark_path = f'{output_dir}/{job_id}_watermark.png'
+        watermark_path = f'{output_dir}/{job_id}_watermark_{time.time()}.png'
         #watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
         
         blob = Storage.bucket('ccmarkbucket').blob(f'watermarks/{job_id}.png')
