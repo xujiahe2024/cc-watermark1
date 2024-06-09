@@ -130,7 +130,7 @@ def upload():
         
         full_video = VideoFileClip(video_path)
         
-        
+        """
         for i, (start, end) in enumerate(chunks):
             video = full_video.subclip(start, end)
             video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
@@ -141,7 +141,7 @@ def upload():
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
-        """
+        
         
         splittime = time.time()
         app.logger.info(f"Time taken to split video: {splittime - uploadtime}")
@@ -230,6 +230,7 @@ def upload_to_faas():
         
         full_video = VideoFileClip(video_path)
         
+        """
         
         for i, (start, end) in enumerate(chunks):
             video = full_video.subclip(start, end)
@@ -241,7 +242,7 @@ def upload_to_faas():
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
-        """
+        
         splittime = time.time()
         app.logger.info(f"Time taken to split video: {splittime - uploadtime}")
         
