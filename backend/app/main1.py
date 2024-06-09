@@ -60,9 +60,6 @@ def clip_chunk(i, start_end, video, job_id, bucket):
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
-        
-        
-        
         app.logger.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
@@ -161,7 +158,7 @@ def upload():
 
 
 @app.route('/upload_to_faas', methods=['POST'])
-def upload():
+def upload_to_faas():
     try:
         
         app.logger.info('form: %s', request.form)
