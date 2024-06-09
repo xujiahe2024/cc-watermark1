@@ -122,14 +122,15 @@ def status():
         return jsonify({'error': 'Job ID is required.'}), 400
     
     job_ref = database.collection('job').document(job_id)
-    job = job_ref.get().to_dict()
+    job = job_ref.get()
     if not job.exists:
         return jsonify({'error': 'There is no job.'}), 404
-    if job['completed_chunks'] >= job['total_chunks']:
+    job_data = job.to_dict()
+    if job_data['completed_chunks'] >= job_data['total_chunks']:
         merge_chunks(job_id)
         job_ref.update({'status': 'completed', 'progress': 100})
 
-    return jsonify(job.to_dict())
+    return jsonify(job_data)
 
 
 def merge_chunks(job_id):
