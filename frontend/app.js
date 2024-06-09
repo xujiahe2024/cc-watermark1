@@ -18,9 +18,10 @@ async function checkStatus(useAlert=true) {
         const response = await fetch(urlprefix + '/status?Jobid=' + Jobid);
         if (response.ok) {
             const result = await response.json();
-            const progress = result.progress;
+            //const progress = result.progress;
+            progress = (double(result.completed_chunks) / result.total_chunks) * 100;
             document.getElementById('progress').innerText = 'Progress:' + progress;
-            if (progress === 100) {
+            if (result.completed_chunks >= result.total_chunks) {
                 document.getElementById('Downloadbutton').setAttribute('data-jobid', Jobid);
                 return 'done'
             } else {
@@ -84,14 +85,14 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
             document.getElementById('Jobid').value = result.Jobid;
 
             // Start polling for status
-            /*
+            
             const statusIntervalId = setInterval(function(){
                 done = checkStatus(useAlert=false);
                 if (done === 'done') {
                     clearInterval(statusIntervalId);
                 }
             }, 1000);  // Poll every 1 second
-            */
+            
 
         } else {
             alert('Upload failed, please try again!')
