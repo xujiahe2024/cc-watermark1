@@ -124,8 +124,37 @@ def status():
     job = job_ref.get()
     if not job.exists:
         return jsonify({'error': 'There is no job.'}), 404
+    if job['completed_chunks'] >= job['total_chunks']:
+        merge_chunks(job_id)
+        job_ref.update({'status': 'completed', 'progress': 100})
 
     return jsonify(job.to_dict())
+
+
+def merge_chunks(job_id):
+    global database
+    global storage
+    job_ref = database.collection('job').document(job_id)
+    job_data = job_ref.get().to_dict()
+    #print(f"Job data3: {job_data}")
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    #print(f"chunks_path: {chunks_path}")
+    clips = [VideoFileClip(chunk) for chunk in chunks_path]
+    final_clip = concatenate_videoclips(clips)
+    #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
+    final_result_path = f'{output_dir}/final_{job_id}.mp4'
+
+    bucket = storage.bucket('ccmarkbucket')
+    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+    final_blob.upload_from_filename(final_result_path)
+    
+    os.remove(final_result_path)
+    
+    #print(f"Uploaded final result for job {job_id}")
+
+
+    
 
 @app.route('/hello', methods=['GET'])
 def hello():
