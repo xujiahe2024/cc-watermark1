@@ -20,6 +20,10 @@ spec:
       containers:
         - name: watermark-backend
           image: gcr.io/watermarking-424614/watermark-backend
+          resources:
+            requests:
+              memory: "64Mi"
+              cpu: "250m"
           ports:
            - containerPort: 8080
           env:

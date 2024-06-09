@@ -21,11 +21,8 @@ spec:
           image: gcr.io/watermarking-424614/watermark-consumer
           resources:
             requests:
-              memory: "64Mi"
+              memory: "256Mi"
               cpu: "250m"
-            limits:
-              memory: "512Mi"
-              cpu: "500m"
           ports:
            - containerPort: 8080
           env:
