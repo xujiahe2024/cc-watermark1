@@ -76,12 +76,14 @@ document.getElementById('Uploadform').addEventListener('submit',async function (
             document.getElementById('Jobid').value = result.Jobid;
 
             // Start polling for status
+            /*
             const statusIntervalId = setInterval(function(){
                 done = checkStatus(useAlert=false);
                 if (done === 'done') {
                     clearInterval(statusIntervalId);
                 }
             }, 1000);  // Poll every 1 second
+            */
 
         } else {
             alert('Upload failed, please try again!')

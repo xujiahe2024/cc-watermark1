@@ -4,6 +4,7 @@ from moviepy.editor import VideoFileClip, ImageClip, CompositeVideoClip, concate
 import os
 import logging
 import threading
+import time
 
 from google.cloud import storage, firestore, pubsub_v1
 import concurrent.futures
@@ -59,6 +60,9 @@ def clip_chunk(i, start_end, video_path, job_id, bucket):
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
+        
+        
+        
         logging.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
@@ -84,7 +88,7 @@ def upload():
         #video_path = f'/tmp/{job_id}_video.webm'
         #watermark_path = f'/tmp/{job_id}_watermark.png'
         
-        
+        start_time = time.time()
 
         if videofile:
             videofile.save(video_path)
@@ -92,6 +96,9 @@ def upload():
             os.system(f'wget -O {video_path} {videourl}')
 
         markimage.save(watermark_path)
+        
+        storetime = time.time()
+        logging.info(f"Time taken to store files: {storetime - start_time}")
 
         bucket = storage.bucket(bucketname)
         #blob = bucket.blob(f'videos/{job_id}.webm')
@@ -101,6 +108,9 @@ def upload():
         
         blob = bucket.blob(f'watermarks/{job_id}.png')
         blob.upload_from_filename(watermark_path)
+        
+        uploadtime = time.time()
+        logging.info(f"Time taken to upload files: {uploadtime - storetime}")
 
         #processor(job_id, video_path, watermark_path, storage, database)
       
@@ -124,16 +134,21 @@ def upload():
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
-        """    
-            
+        """        
+        
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
-        with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), [len(chunks)]*len(chunks))
-        #message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
+        splittime = time.time()
+        logging.info(f"Time taken to split video: {splittime - uploadtime}")
+        
+        #with concurrent.futures.ThreadPoolExecutor() as executor:
+        #    executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), [len(chunks)]*len(chunks))
+        message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
-
+        publishtime = time.time()
+        logging.info(f"Time taken to publish messages: {publishtime - splittime}")
+    
         return jsonify({'Jobid': job_id, 'message': 'Your video is processing 2'})
     
     except Exception as e:
