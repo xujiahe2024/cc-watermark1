@@ -32,7 +32,7 @@ class MyFlaskApp(Flask):
 
 
 app = MyFlaskApp(__name__)
-app.logger.setLevel(logging.INFO)
+app.logger.setLevel(app.logger.info)
 app.app_context().push()
 
 
@@ -63,14 +63,14 @@ def upload():
         
         
         
-        logging.info('form: %s', request.form)
+        app.logger.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
         isFaas = request.form.get('IsFaas')
         markimage = request.files.get('Watermarkimage')
-        logging.info('isFaas: ' + isFaas)
+        app.logger.info('isFaas: ' + isFaas)
         for key, value in request.form.items():
-            logging.info(f"Key: {key}, Value: {value}")
+            app.logger.info(f"Key: {key}, Value: {value}")
 
         if not (videofile or videourl) or not markimage:
             return jsonify({'You have to upload video and markimage'}), 400
@@ -98,7 +98,7 @@ def upload():
         markimage.save(watermark_path)
         
         storetime = time.time()
-        logging.info(f"Time taken to store files: {storetime - start_time}")
+        app.logger.info(f"Time taken to store files: {storetime - start_time}")
 
         bucket = storage.bucket(bucketname)
         #blob = bucket.blob(f'videos/{job_id}.webm')
@@ -110,7 +110,7 @@ def upload():
         blob.upload_from_filename(watermark_path)
         
         uploadtime = time.time()
-        logging.info(f"Time taken to upload files: {uploadtime - storetime}")
+        app.logger.info(f"Time taken to upload files: {uploadtime - storetime}")
 
         #processor(job_id, video_path, watermark_path, storage, database)
       
@@ -127,28 +127,30 @@ def upload():
             'resulturl': None
         })
         
-        """
+        full_video = VideoFileClip(video_path)
         for i, (start, end) in enumerate(chunks):
-            video = VideoFileClip(video_path).subclip(start, end)
-            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
+            video = full_video.subclip(start, end)
+            video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
-        """        
         
+        """
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
-        
+        """
         splittime = time.time()
-        logging.info(f"Time taken to split video: {splittime - uploadtime}")
+        app.logger.info(f"Time taken to split video: {splittime - uploadtime}")
         
         #with concurrent.futures.ThreadPoolExecutor() as executor:
         #    executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), [len(chunks)]*len(chunks))
         message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
         publishtime = time.time()
-        logging.info(f"Time taken to publish messages: {publishtime - splittime}")
-    
+        app.logger.info(f"Time taken to publish messages: {publishtime - splittime}")
+
+        job_ref.update({'storage_time': storetime - start_time, 'upload_time': uploadtime - storetime, 'split_time': splittime - uploadtime, 'publish_time': publishtime - splittime, 'total_time': publishtime - start_time})
+        
         return jsonify({'Jobid': job_id, 'message': 'Your video is processing 3'})
     
     except Exception as e:
