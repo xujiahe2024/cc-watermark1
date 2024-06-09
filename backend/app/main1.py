@@ -51,7 +51,7 @@ def download_chunk(chunk, chunk_path_web):
 def clip_chunk(i, start_end, video_path, job_id, bucket):
     start, end = start_end
     video = VideoFileClip(video_path).subclip(start, end)
-    video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx")
+    video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
     blob = bucket.blob(f'videos/{job_id}_{i}.webm')
     blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
 
@@ -130,7 +130,7 @@ def upload():
             executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), len(chunks)*[len(chunks)])
+            executor.map(message_queue1.publish_message, [job_id]*len(chunks), [isFaas]*len(chunks), [watermark_path]*len(chunks), chunks, [video_url]*len(chunks), range(len(chunks)), [len(chunks)]*len(chunks))
         #message_queue1.publish_messages(job_id, isFaas, watermark_path, chunks, video_url)
 
 

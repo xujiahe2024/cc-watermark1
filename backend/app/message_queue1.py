@@ -87,7 +87,7 @@ def publish_messages(job_id, isFaas, watermark_path, chunks, video_url):
 def publish_message(job_id, isFaas, watermark_path, chunk, video_url, current_chunk, total_chunks):
     isFaas = 'true'
     with current_app.app_context():
-        #current_app.logger.info(f"Topic path: {topic_path}")
+        current_app.logger.info(f"Topic path: {topic_path}, message: {current_chunk}, chunk: {chunk}")
         #current_chunk
         (start, end) = chunk
 
