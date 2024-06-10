@@ -18,7 +18,7 @@ topic_path = pub_client.topic_path(project_id, topic_id)
 
 topic_name = 'projects/{project_id}/topics/{topic}'.format(
     project_id=project_id,
-    topic=topic_id,  # Set this to something appropriate.
+    topic=topic_id, 
 )
 
 
@@ -40,7 +40,7 @@ def initialize_publisher():
 
     # def publish_messages(video_url, start, end):
     #     if video_url and start and end:
-    #         # Create a map object
+    #         
     #         data = {
     #             "video_url": video_url,
     #             "start": start,
@@ -48,7 +48,7 @@ def initialize_publisher():
     #         }
     #         # Convert the map object to a JSON string
     #         data = json.dumps(data)
-    #         # Data must be a bytestring
+    #         
     #         data = data.encode("utf-8")
     #         # Publish a message
     #         future = publisher.publish(topic_path, data)
@@ -80,7 +80,7 @@ subscription_id = 'image--watermark-sub1'
 
 subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
     project_id=project_id,
-    sub=subscription_id,  # Set this to something appropriate.
+    sub=subscription_id, 
 )
 
 def callback(message): 
@@ -107,19 +107,6 @@ def initialize_subscriber():
         #subscriber3 = pubsub_v1.SubscriberClient()
         
         subscription_path = subscriber.subscription_path(project_id, subscription_id)
-
-    
-
-    # def callback(message):
-    #     # Decode the bytestring to a JSON string
-    #     json_str = message.data.decode('utf-8')
-    #     # Parse the JSON string to a map object
-    #     data = json.loads(json_str)
-    #     print(f"Received message: {data}")
-    #     message.ack()
-
-    
-
 
         #subscriber2.subscribe(subscription_path, callback=callback)
         #subscriber3.subscribe(subscription_path, callback=callback)
