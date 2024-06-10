@@ -324,9 +324,9 @@ def merge_chunks(job_id):
     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
     
-    os.remove(final_result_path)
-    for chunk in chunks_path:
-        os.remove(chunk)
+    #os.remove(final_result_path)
+    #for chunk in chunks_path:
+    #    os.remove(chunk)
     
     job_ref.update({'status': 'completed', 'progress': 100, 'resulturl': final_blob.public_url})
     
