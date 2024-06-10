@@ -4,11 +4,12 @@ from google.cloud import firestore
 from google.cloud import storage
 import logging
 import time
+import concurrent.futures
 
 Storage = storage.Client()
 database = firestore.Client()
 
-output_dir = os.path.abspath('./output')
+output_dir = os.path.abspath('/output')
 
 def cal_video_length(video_path):
     video = VideoFileClip(video_path)
@@ -47,7 +48,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
             os.makedirs(output_dir)
         
         right_video_url = f'videos/{job_id}_{current_chunk}.webm'
-        #video_path = f'{tmpdir}/{job_id}_video_{current_chunk}.webm'
+        #video_path = f'{output_dir}/{job_id}_video_{current_chunk}.webm'
         #f'videos/{job_id}_{i}.webm'
         #print(output_dir)
         
@@ -78,8 +79,8 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         
         process_time = time.time()
         
-        os.remove(video_path)
-        os.remove(watermark_path)
+        #os.remove(video_path)
+        #os.remove(watermark_path)
         
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
         processed.write_videofile(chunk_path, logger=None)
@@ -93,7 +94,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         blob.upload_from_filename(chunk_path, timeout=600, num_retries=2)
         
         #delete chunk file
-        os.remove(chunk_path)
+        #os.remove(chunk_path)
         
         process_time = time.time()
 
@@ -143,8 +144,8 @@ def merge_chunks(job_id):
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
     #print(f"Job data3: {job_data}")
-    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
-    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
     
     """
@@ -159,7 +160,7 @@ def merge_chunks(job_id):
         
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
-    #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
+    #tmpfilePath = f'{output_dir}/{job_id}_final_temp_audiofile_path'
     #final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
     final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
     final_result_path = f'{output_dir}/final_{job_id}.mp4'
