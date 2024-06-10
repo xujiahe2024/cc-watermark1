@@ -40,7 +40,6 @@ def initialize_publisher():
             print(f"Published {data} to {topic_path}: {future.result()}")
             """
 
-    #从某个视频的第start帧操作到第end帧
     # def publish_messages(video_url, start, end):
     #     if video_url and start and end:
     #         # Create a map object
@@ -140,7 +139,7 @@ def initialize_subscriber():
     #     message.ack()
 
     
-        def callback(message): #处理来自pub的消息
+        def callback(message): 
             try:
                 with current_app.app_context():
                     data = json.loads(message.data.decode('utf-8'))
