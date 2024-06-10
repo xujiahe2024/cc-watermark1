@@ -1,5 +1,5 @@
 //env_name = process.env.CURRENT_ENV;
-//console.log(process.env.CURRENT_ENV); // 输出 "TEST"
+//console.log(process.env.CURRENT_ENV); 
 
 //urlprefix = "http://watermark-backend.default.svc.cluster.local";
 urlprefix = "http://35.204.29.159:8071";

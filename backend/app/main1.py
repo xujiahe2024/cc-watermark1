@@ -82,7 +82,7 @@ def upload():
         
         os.makedirs(output_dir, exist_ok=True)
 
-        # 生成文件路径
+
         video_path = os.path.join(output_dir, f'{job_id}_video.webm')
         watermark_path = os.path.join(output_dir, f'{job_id}_watermark.png')
 
