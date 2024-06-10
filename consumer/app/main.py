@@ -21,4 +21,4 @@ bucketname = 'ccmarkbucket'
 if __name__ == '__main__':
     threading.Thread(target=message_queue.initialize_subscriber).start()
     while True:
-        time.sleep(1)
+        time.sleep(120)

@@ -84,8 +84,24 @@ subscription_name = 'projects/{project_id}/subscriptions/{sub}'.format(
     sub=subscription_id,  # Set this to something appropriate.
 )
 
+def callback(message): #处理来自pub的消息
+            
+        try:
+            data = json.loads(message.data.decode('utf-8'))
+                #logging.info(f"Received message : {data}")
+                
+                # Decode the URL
+                #video_url = unquote(data['video_url'])
+
+            process_chunk(data['job_id'], "", data['start'], data['end'], data['chunk_num'], data['total_chunks'])
+            message.ack()
+        except Exception as e:
+            logging.info(f"An error occurred while processing message: {e}")
+            message.ack()
+
 
 def initialize_subscriber():
+    for i in range(3):
         #current_app.logger.info(f"Subscription name: {subscription_name}")
         subscriber = pubsub_v1.SubscriberClient()
         #subscriber2 = pubsub_v1.SubscriberClient()
@@ -104,25 +120,12 @@ def initialize_subscriber():
     #     message.ack()
 
     
-        def callback(message): #处理来自pub的消息
-            
-            try:
-                data = json.loads(message.data.decode('utf-8'))
-                #logging.info(f"Received message : {data}")
-                
-                # Decode the URL
-                #video_url = unquote(data['video_url'])
 
-                process_chunk(data['job_id'], "", data['start'], data['end'], data['chunk_num'], data['total_chunks'])
-                message.ack()
-            except Exception as e:
-                logging.info(f"An error occurred while processing message: {e}")
-                message.ack()
 
         #subscriber2.subscribe(subscription_path, callback=callback)
         #subscriber3.subscribe(subscription_path, callback=callback)
         streaming_pull_future = subscriber.subscribe(subscription_path, callback=callback)
-        logging.info(f"Listening for messages on {subscription_path}\n")
-        logging.info(f"streaming_pull_future: {streaming_pull_future}")
+    logging.info(f"Listening for messages on {subscription_path}\n")
+    logging.info(f"streaming_pull_future: {streaming_pull_future}")
 
 

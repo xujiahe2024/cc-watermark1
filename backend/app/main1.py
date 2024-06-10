@@ -291,7 +291,6 @@ def status():
         app.logger.error('Failed to get status', exc_info=True)
         merge_lock.release()
         return jsonify({'error': str(e)}), 500
-    
 
 
 def merge_chunks(job_id):
