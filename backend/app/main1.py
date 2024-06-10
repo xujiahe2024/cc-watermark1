@@ -303,6 +303,7 @@ def merge_chunks(job_id):
     chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
     
+    """
     for i, chunk in enumerate(chunks_path):
         chunk_blob = storage.bucket(bucketname).blob(chunks_path_web[i])
         chunk_blob.download_to_filename(chunk)
@@ -310,7 +311,7 @@ def merge_chunks(job_id):
     
     with concurrent.futures.ThreadPoolExecutor() as executor:
         executor.map(download_chunk, chunks_path, chunks_path_web)
-    """
+    
         
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
