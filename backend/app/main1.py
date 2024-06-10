@@ -65,7 +65,7 @@ def clip_chunk(i, start_end, full_video, job_id, bucket):
 @app.route('/upload', methods=['POST'])
 def upload():
     try:
-        app.logger.info('form: %s', request.form)
+        #app.logger.info('form: %s', request.form)
         videofile = request.files.get('Videofile')
         videourl = request.form.get('Videourl')
         isFaas = request.form.get('IsFaas')
@@ -119,6 +119,8 @@ def upload():
         chunks = split_video(video_path, chunk_length=0.05)
         chunks = chunks[:-1]
         
+        app.logger.info(f"Split video into {len(chunks)} chunks")
+        
         job_ref = database.collection('job').document(job_id)
         job_ref.set({
             'status': 'pending',
@@ -129,6 +131,7 @@ def upload():
         })
         
         full_video = VideoFileClip(video_path)
+        
         
         
         for i, (start, end) in enumerate(chunks):
