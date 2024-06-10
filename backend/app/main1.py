@@ -137,6 +137,7 @@ def upload():
             blob = bucket.blob(f'videos/{job_id}_{i}.webm')
             blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm', timeout=1200, num_retries=3)
             blob.make_public()
+            app.logger.info(f"chunk {i} url: {blob.public_url}")
             job_ref.set(f'chunk{i}_url', blob.public_url)
             #process_chunk(job_id, video_path, watermark_path, start, end, i + 1, len(chunks), video_url)
         """
