@@ -6,6 +6,8 @@ from flask import current_app
 import logging
 import concurrent.futures
 
+
+
 output_dir = os.path.abspath('./output')
 
 def cal_video_length(video_path):

@@ -14,6 +14,16 @@ def cal_video_length(video_path):
     video = VideoFileClip(video_path)
     return int(video.duration)
 
+bucketname = 'ccmarkbucket'
+
+
+#parallel downloading of chunks
+def download_chunk(chunk, chunk_path_web):
+    global bucketname
+    global Storage
+    chunk_blob = storage.bucket(bucketname).blob(chunk_path_web)
+    chunk_blob.download_to_filename(chunk)
+
 
 def split_video(video_path, chunk_length=10):
     video_length = cal_video_length(video_path)
@@ -29,7 +39,6 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         global database
         start_time = time.time()
         #logging.info(f"Processing chunk {current_chunk} of {total_chunks} for job {job_id}")
-        database = firestore.Client()
         job_ref = database.collection('job').document(job_id)
         
         video_path = f'{output_dir}/{job_id}_video_{current_chunk}.webm'
@@ -104,13 +113,13 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         #logging.info(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
-            #merge_chunks(job_id)
+            merge_chunks(job_id)
             job_ref.update({'finish_time': time.time()})
 
 
-
+"""
 def merge_chunks(job_id):
-    database = firestore.Client()
+    global Storage
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
     logging.info(f"Job data3: {job_data}")
@@ -125,7 +134,47 @@ def merge_chunks(job_id):
     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
     logging.info(f"Uploaded final result for job {job_id}")
+"""
 
+
+def merge_chunks(job_id):
+    global database
+    global storage
+    job_ref = database.collection('job').document(job_id)
+    job_data = job_ref.get().to_dict()
+    #print(f"Job data3: {job_data}")
+    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    #print(f"chunks_path: {chunks_path}")
+    
+    """
+    for i, chunk in enumerate(chunks_path):
+        chunk_blob = storage.bucket(bucketname).blob(chunks_path_web[i])
+        chunk_blob.download_to_filename(chunk)
+    """
+    
+    with concurrent.futures.ThreadPoolExecutor() as executor:
+        executor.map(download_chunk, chunks_path, chunks_path_web)
+    
+        
+    clips = [VideoFileClip(chunk) for chunk in chunks_path]
+    final_clip = concatenate_videoclips(clips)
+    #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
+    #final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
+    final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
+    final_result_path = f'{output_dir}/final_{job_id}.mp4'
+
+    bucket = storage.bucket('ccmarkbucket')
+    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+    final_blob.upload_from_filename(final_result_path)
+    
+    #os.remove(final_result_path)
+    #for chunk in chunks_path:
+    #    os.remove(chunk)
+    
+    job_ref.update({'status': 'completed', 'progress': 100, 'resulturl': final_blob.public_url})
+    
+    #print(f"Uploaded final result for job {job_id}")
 
 
 

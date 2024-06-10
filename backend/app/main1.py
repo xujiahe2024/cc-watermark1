@@ -275,6 +275,7 @@ def status():
         job = job_ref.get()
         if not job.exists:
             return jsonify({'error': 'There is no job.'}), 404
+        """
         job_data = job.to_dict()
         if job_data['completed_chunks'] >= job_data['total_chunks'] and job_data['status'] != 'completed':
             if merge_lock.acquire(blocking=False):
@@ -285,6 +286,7 @@ def status():
             else :
                 if job_data['status'] != 'processing':
                     job_ref.update({'status': 'processing'})
+        """
         job_data = job.to_dict()
         return jsonify(job_data)
     except Exception as e:
