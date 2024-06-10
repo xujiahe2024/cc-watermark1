@@ -81,7 +81,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
 
         bucket = Storage.bucket('ccmarkbucket')
         blob = bucket.blob(f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm')
-        blob.upload_from_filename(chunk_path)
+        blob.upload_from_filename(chunk_path, timeout=600, num_retries=2)
         
         #delete chunk file
         os.remove(chunk_path)
@@ -105,7 +105,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
             #merge_chunks(job_id)
-            #job_ref.update({'status': 'completed', 'progress': 100})
+            job_ref.update({'finish_time': time.time()})
 
 
 

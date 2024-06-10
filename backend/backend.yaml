@@ -22,7 +22,7 @@ spec:
           image: gcr.io/watermarking-424614/watermark-backend
           resources:
             requests:
-              memory: "64Mi"
+              memory: "128Mi"
               cpu: "250m"
           ports:
            - containerPort: 8080

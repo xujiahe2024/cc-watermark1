@@ -278,10 +278,10 @@ def status():
         job_data = job.to_dict()
         if job_data['completed_chunks'] >= job_data['total_chunks'] and job_data['status'] != 'completed':
             if merge_lock.acquire(blocking=False):
-                merge_chunks(job_id)
-                merge_lock.release()
-                job_ref = database.collection('job').document(job_id)
-                job = job_ref.get()
+                    merge_chunks(job_id)
+                    merge_lock.release()
+                    job_ref = database.collection('job').document(job_id)
+                    job = job_ref.get()
             else :
                 if job_data['status'] != 'processing':
                     job_ref.update({'status': 'processing'})
