@@ -144,8 +144,8 @@ def merge_chunks(job_id):
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
     #print(f"Job data3: {job_data}")
-    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
-    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
+    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
     
     """
