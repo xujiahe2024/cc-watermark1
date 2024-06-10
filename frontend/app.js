@@ -7,6 +7,8 @@ urlprefix = "http://35.204.29.159:8071";
 //    case "TEST": urlprefix = "http://127.0.0.1:80"; break;
 //}
 
+var job_result = {};
+
 async function checkStatus(useAlert=true) {
     const Jobid = document.getElementById('Jobid').value;
     if(!Jobid){
@@ -19,6 +21,7 @@ async function checkStatus(useAlert=true) {
         if (response.ok) {
             const result = await response.json();
             //const progress = result.progress;
+            job_result = result;
             progress = (double(result.completed_chunks) / result.total_chunks) * 100;
             document.getElementById('progress').innerText = 'Progress:' + progress;
             var progressBar = document.getElementById('progress-bar');
@@ -139,4 +142,14 @@ document.getElementById('Downloadbutton').addEventListener('click', function () 
             console.error('Error:', error);
             alert('Failed to download the video');
         });
+});
+
+document.getElementById('Analyzebutton').addEventListener('click', function() {
+    var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(job_result));
+    var downloadAnchorNode = document.createElement('a');
+    downloadAnchorNode.setAttribute("href",     dataStr);
+    downloadAnchorNode.setAttribute("download", "result.json");
+    document.body.appendChild(downloadAnchorNode);
+    downloadAnchorNode.click();
+    downloadAnchorNode.remove();
 });
