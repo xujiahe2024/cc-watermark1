@@ -10,7 +10,7 @@ import concurrent.futures
 
 import tempfile
 
-output_dir = os.path.abspath('./output')
+tmpdir = os.path.abspath('./output')
 
 
 tmpdir = tempfile.gettempdir()
@@ -32,6 +32,7 @@ bucketname = "ccmarkbucket"
 def download_chunk(chunk, chunk_path_web):
     global bucketname
     global Storage
+    print(f"Downloading chunk {chunk}")
     chunk_blob = storage.bucket(bucketname).blob(chunk_path_web)
     chunk_blob.download_to_filename(chunk)
 
@@ -73,8 +74,8 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         
         process_time = time.time()
         
-        os.remove(video_path)
-        os.remove(watermark_path)
+        #os.remove(video_path)
+        #os.remove(watermark_path)
         
         chunk_path = f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm'
         #tmpfilePath = f'{tmpdir}/{job_id}_final_chunk_{current_chunk}_temp_audiofile_path'
@@ -87,7 +88,7 @@ def process_chunk(job_id, video_url, watermark_path, start, end, current_chunk, 
         blob.upload_from_filename(chunk_path)
         
         #delete chunk file
-        os.remove(chunk_path)
+        #os.remove(chunk_path)
         
         process_time = time.time()
 
@@ -145,8 +146,8 @@ def merge_chunks(job_id):
     job_ref = database.collection('job').document(job_id)
     job_data = job_ref.get().to_dict()
     #print(f"Job data3: {job_data}")
-    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
-    chunks_path = [f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(job_data['total_chunks'])]
+    chunks_path_web = [f'final/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
+    chunks_path = [f'{tmpdir}/{job_id}_final_chunk{current_chunk}.webm' for current_chunk in range(2,job_data['total_chunks'])]
     #print(f"chunks_path: {chunks_path}")
     
     """
@@ -162,12 +163,12 @@ def merge_chunks(job_id):
     clips = [VideoFileClip(chunk) for chunk in chunks_path]
     final_clip = concatenate_videoclips(clips)
     #tmpfilePath = f'{tmpdir}/{job_id}_final_temp_audiofile_path'
-    #final_clip.upload_video(f'{output_dir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
-    final_clip.write_videofile(f'{output_dir}/final_{job_id}.mp4', temp_audiofile_path = output_dir, logger = None)
-    final_result_path = f'{output_dir}/final_{job_id}.mp4'
+    #final_clip.upload_video(f'{tmpdir}/final_{job_id}.mp4', codec = "libvpx", logger = None)
+    final_clip.write_videofile(f'{tmpdir}/final_{job_id}.mp4', temp_audiofile_path = tmpdir, logger = None)
+    final_result_path = f'{tmpdir}/final_{job_id}.mp4'
 
     bucket = storage.bucket('ccmarkbucket')
-    final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+    final_blob = bucket.blob(f'{tmpdir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
     
     #os.remove(final_result_path)
