@@ -353,24 +353,27 @@ def hello():
 
 @app.route('/download', methods=['GET'])
 def download():
-    job_id = request.args.get('Jobid')
-    if not job_id:
-        return jsonify({'error': 'Job ID is required.'}), 400
+    try:
+        job_id = request.args.get('Jobid')
+        if not job_id:
+            return jsonify({'error': 'Job ID is required.'}), 400
 
-    job_ref = database.collection('job').document(job_id)
-    job = job_ref.get()
-    if not job.exists:
-        return jsonify({'error': 'There is no job.'}), 404
-
-    job_data = job.to_dict()
-    if job_data['status'] != 'completed':
-        return jsonify({'error': 'Job is not completed.'}), 400
+        job_ref = database.collection('job').document(job_id)
+        job = job_ref.get()
+        if not job.exists:
+            return jsonify({'error': 'There is no job.'}), 404
+    #job_data = job.to_dict()
+    #if job_data['status'] != 'completed':
+    #    return jsonify({'error': 'Job is not completed.'}), 400
     
-    bucket = storage.bucket(bucketname)
-    blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
-    blob.download_to_filename(f'{output_dir}/final_{job_id}.mp4')
+        bucket = storage.bucket(bucketname)
+        blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
+        blob.download_to_filename(f'{output_dir}/final_{job_id}.mp4')
 
-    return send_file(f'{output_dir}/final_{job_id}.mp4')
+        return send_file(f'{output_dir}/final_{job_id}.mp4')
+    except Exception as e:
+        app.logger.error('Failed to download file', exc_info=True)
+        return jsonify({'error': str(e)}), 500
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', port=8080)
