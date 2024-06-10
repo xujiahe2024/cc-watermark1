@@ -3,7 +3,7 @@ kind: Deployment
 metadata:
   name: watermark-consumer
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: watermark-consumer
@@ -21,7 +21,7 @@ spec:
           image: gcr.io/watermarking-424614/watermark-consumer
           resources:
             requests:
-              memory: "256Mi"
+              memory: "512Mi"
               cpu: "250m"
           ports:
            - containerPort: 8080
