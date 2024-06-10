@@ -21,6 +21,8 @@ async function checkStatus(useAlert=true) {
             //const progress = result.progress;
             progress = (double(result.completed_chunks) / result.total_chunks) * 100;
             document.getElementById('progress').innerText = 'Progress:' + progress;
+            var progressBar = document.getElementById('progress-bar');
+            progressBar.style.width = progress + '%';
             if (result.completed_chunks >= result.total_chunks) {
                 document.getElementById('Downloadbutton').setAttribute('data-jobid', Jobid);
                 return 'done'
