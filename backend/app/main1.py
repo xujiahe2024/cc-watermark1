@@ -53,10 +53,13 @@ def download_chunk(chunk, chunk_path_web):
 #parallel preclip into chunks
 def clip_chunk(i, start_end, full_video, job_id, bucket):
     with current_app.app_context():
-        current_app.logger.info(f"Processing chunk {i} for job {job_id}")
+        #current_app.logger.info(f"Processing chunk {i} for job {job_id}")
         start, end = start_end
         video = full_video.subclip(start, end)
         video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
+
+def upload_chunk(i, start_end, full_video, job_id, bucket):
+    with current_app.app_context():
         blob = bucket.blob(f'videos/{job_id}_{i}.webm')
         blob.upload_from_filename(f'{output_dir}/{job_id}_chunk{i}.webm')
         os.remove(f'{output_dir}/{job_id}_chunk{i}.webm')
@@ -248,7 +251,7 @@ def upload_to_faas():
         full_video = VideoFileClip(video_path)
         
         
-        
+        """
         for i, (start, end) in enumerate(chunks):
             video = full_video.subclip(start, end)
             video.write_videofile(f'{output_dir}/{job_id}_chunk{i}.webm', codec = "libvpx", logger = None)
@@ -262,7 +265,12 @@ def upload_to_faas():
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
             executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
-        """
+        
+        
+        with concurrent.futures.ThreadPoolExecutor() as executor:
+            executor.map(upload_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+        
+        
         splittime = time.time()
         app.logger.info(f"Time taken to split video: {splittime - uploadtime}")
         
