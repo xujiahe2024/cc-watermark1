@@ -97,6 +97,12 @@ def upload():
 
         markimage.save(watermark_path)
         
+        job_ref = database.collection('job').document(job_id)
+        
+        job_ref.set({
+            'start_time': start_time,
+        })
+        
         storetime = time.time()
         app.logger.info(f"Time taken to store files: {storetime - start_time}")
 
@@ -120,7 +126,6 @@ def upload():
         
         app.logger.info(f"Split video into {len(chunks)} chunks")
         
-        job_ref = database.collection('job').document(job_id)
         job_ref.set({
             'status': 'pending',
             'progress': 0,
@@ -202,6 +207,8 @@ def upload_to_faas():
 
         markimage.save(watermark_path)
         
+        job_ref = database.collection('job').document(job_id)
+        
         job_ref.set({
             'start_time': start_time,
         })
@@ -227,7 +234,7 @@ def upload_to_faas():
         chunks = split_video(video_path, chunk_length=0.05)
         chunks = chunks[:-1]
         
-        job_ref = database.collection('job').document(job_id)
+        
         job_ref.set({
             'status': 'pending',
             'progress': 0,
