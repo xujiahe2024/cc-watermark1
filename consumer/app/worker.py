@@ -106,8 +106,9 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         job_ref.set({f'task_{current_chunk}':{
             'download_time': download_time - start_time,
             'process_time': process_time - download_time,
-            'upload_time': time.time() - process_time
-            }}, merge=True)
+            'upload_time': time.time() - process_time,
+            },
+            'finish_time': time.time() }, merge=True)
 
 
         job_data = job_ref.get().to_dict()
