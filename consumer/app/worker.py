@@ -114,8 +114,9 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         #logging.info(f"Job data2: {job_data}")
         if job_data['completed_chunks'] >= job_data['total_chunks']:
             logging.info(f"All chunks processed for job {job_id}")
+            job_ref.set({'finish_time': time.time()})
             merge_chunks(job_id)
-            job_ref.update({'finish_time': time.time()})
+            
 
 
 """

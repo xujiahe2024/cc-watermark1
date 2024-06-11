@@ -202,6 +202,10 @@ def upload_to_faas():
 
         markimage.save(watermark_path)
         
+        job_ref.set({
+            'start_time': start_time,
+        })
+        
         storetime = time.time()
         app.logger.info(f"Time taken to store files: {storetime - start_time}")
 
