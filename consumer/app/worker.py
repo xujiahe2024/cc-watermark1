@@ -79,8 +79,8 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         
         process_time = time.time()
         
-        #os.remove(video_path)
-        #os.remove(watermark_path)
+        os.remove(video_path)
+        os.remove(watermark_path)
         
         chunk_path = f'{output_dir}/{job_id}_final_chunk{current_chunk}.webm'
         processed.write_videofile(chunk_path, logger=None)
@@ -94,7 +94,7 @@ def process_chunk(job_id, video_url, start, end, current_chunk, total_chunks):
         blob.upload_from_filename(chunk_path, timeout=600, num_retries=2)
         
         #delete chunk file
-        #os.remove(chunk_path)
+        os.remove(chunk_path)
         
         process_time = time.time()
 
@@ -170,9 +170,9 @@ def merge_chunks(job_id):
     final_blob = bucket.blob(f'{output_dir}/{job_id}_final.mp4')
     final_blob.upload_from_filename(final_result_path)
     
-    #os.remove(final_result_path)
-    #for chunk in chunks_path:
-    #    os.remove(chunk)
+    os.remove(final_result_path)
+    for chunk in chunks_path:
+        os.remove(chunk)
     
     job_ref.update({'status': 'completed', 'progress': 100, 'resulturl': final_blob.public_url})
     
