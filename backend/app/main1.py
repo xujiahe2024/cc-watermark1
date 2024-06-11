@@ -101,6 +101,7 @@ def upload():
         
         job_ref.set({
             'start_time': start_time,
+            'job_id': job_id,
         }, merge=True)
         
         storetime = time.time()
@@ -211,6 +212,7 @@ def upload_to_faas():
         
         job_ref.set({
             'start_time': start_time,
+            'job_id': job_id,
         }, merge=True)
         
         storetime = time.time()
