@@ -101,7 +101,7 @@ def upload():
         
         job_ref.set({
             'start_time': start_time,
-        })
+        }, merge=True)
         
         storetime = time.time()
         app.logger.info(f"Time taken to store files: {storetime - start_time}")
@@ -132,7 +132,7 @@ def upload():
             'completed_chunks': 0,
             'total_chunks': len(chunks), 
             'resulturl': None
-        })
+        }, merge=True)
         
         full_video = VideoFileClip(video_path)
         
@@ -211,7 +211,7 @@ def upload_to_faas():
         
         job_ref.set({
             'start_time': start_time,
-        })
+        }, merge=True)
         
         storetime = time.time()
         app.logger.info(f"Time taken to store files: {storetime - start_time}")
@@ -241,7 +241,7 @@ def upload_to_faas():
             'completed_chunks': 0,
             'total_chunks': len(chunks), 
             'resulturl': None
-        })
+        }, merge=True)
         
         full_video = VideoFileClip(video_path)
         
