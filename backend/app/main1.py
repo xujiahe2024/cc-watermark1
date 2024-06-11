@@ -51,7 +51,8 @@ def download_chunk(chunk, chunk_path_web):
     
 
 #parallel preclip into chunks
-def clip_chunk(i, start_end, full_video, job_id, bucket):
+def clip_chunk(i, start_end, video_path, job_id, bucket):
+    full_video = VideoFileClip(video_path)
     with current_app.app_context():
         #current_app.logger.info(f"Processing chunk {i} for job {job_id}")
         start, end = start_end
@@ -138,7 +139,7 @@ def upload():
             'resulturl': None
         }, merge=True)
         
-        full_video = VideoFileClip(video_path)
+        #full_video = VideoFileClip(video_path)
         
         
         """
@@ -154,11 +155,11 @@ def upload():
         """
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+            executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(upload_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+            executor.map(upload_chunk, range(len(chunks)), chunks, [""]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         
         splittime = time.time()
@@ -252,7 +253,7 @@ def upload_to_faas():
             'resulturl': None
         }, merge=True)
         
-        full_video = VideoFileClip(video_path)
+        #full_video = VideoFileClip(video_path)
         
         
         """
@@ -268,11 +269,11 @@ def upload_to_faas():
         """
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(clip_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+            executor.map(clip_chunk, range(len(chunks)), chunks, [video_path]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         
         with concurrent.futures.ThreadPoolExecutor() as executor:
-            executor.map(upload_chunk, range(len(chunks)), chunks, [full_video]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
+            executor.map(upload_chunk, range(len(chunks)), chunks, [""]*len(chunks), [job_id]*len(chunks), [bucket]*len(chunks))
         
         
         splittime = time.time()
