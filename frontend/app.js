@@ -148,7 +148,8 @@ document.getElementById('Analyzebutton').addEventListener('click', function() {
     var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(job_result));
     var downloadAnchorNode = document.createElement('a');
     downloadAnchorNode.setAttribute("href",     dataStr);
-    downloadAnchorNode.setAttribute("download", "result.json");
+    let filename = "result-" + Date.now() + ".json";
+    downloadAnchorNode.setAttribute("download", filename);
     document.body.appendChild(downloadAnchorNode);
     downloadAnchorNode.click();
     downloadAnchorNode.remove();
